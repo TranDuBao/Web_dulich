@@ -197,7 +197,7 @@ export const TripBuilder = () => {
 
       {/* Print Only Header Banner */}
       <div className="print-only" style={{ display: 'none', borderBottom: '2px solid #2D3748', paddingBottom: '20px', marginBottom: '30px' }}>
-        <h1 style={{ color: 'black', fontSize: '2.2rem' }}>VinaTravel - KẾ HOẠCH LỊCH TRÌNH DU LỊCH</h1>
+        <h1 style={{ color: 'black', fontSize: '2.2rem' }}>DuBaoTravel - KẾ HOẠCH LỊCH TRÌNH DU LỊCH</h1>
         <p style={{ fontSize: '1.1rem', margin: '6px 0 0 0' }}><strong>{t.tripName}:</strong> {title} | <strong>{t.dest}:</strong> {destination}</p>
         {user && <p style={{ fontSize: '0.9rem', color: '#4A5568' }}>Tạo bởi khách hàng: {user.name} ({user.email})</p>}
       </div>

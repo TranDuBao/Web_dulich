@@ -1,4 +1,4 @@
-# VinaTravel Portal - Tài Liệu Kỹ Thuật & Hướng Dẫn Vận Hành
+# DuBaoTravel Portal - Tài Liệu Kỹ Thuật & Hướng Dẫn Vận Hành
 
 Tài liệu này cung cấp chi tiết về kiến trúc API Gateway, thiết kế đường ống ETL chuẩn hóa dữ liệu nhà cung cấp, và cẩm nang vận hành (Runbook) cho mùa cao điểm.
 
@@ -11,7 +11,7 @@ Cổng API Gateway tổng hợp dịch vụ từ các hệ thống GDS, OTA và 
 ```yaml
 openapi: 3.0.3
 info:
-  title: VinaTravel API Gateway
+  title: DuBaoTravel API Gateway
   description: API Gateway cho cổng thông tin du lịch tích hợp OTA và nhà cung cấp địa phương.
   version: 1.0.0
 servers:
@@ -160,7 +160,7 @@ graph TD
 ```
 
 ### Quy Trình Xử Lý Eventual Consistency & Cache Invalidation:
-1. **Normalizer Pipeline**: Chuẩn hóa toàn bộ cấu trúc dữ liệu về dạng chuẩn chung của VinaTravel (Tên, Tọa độ Lat/Lng, Tiện ích, Số sao).
+1. **Normalizer Pipeline**: Chuẩn hóa toàn bộ cấu trúc dữ liệu về dạng chuẩn chung của DuBaoTravel (Tên, Tọa độ Lat/Lng, Tiện ích, Số sao).
 2. **De-duplication**: Sử dụng thuật toán địa lý (Bán kính < 50m) kết hợp so khớp chuỗi (Jaro-Winkler) trên tên thực thể để gộp các bản ghi khách sạn trùng lặp từ nhiều nhà cung cấp khác nhau thành một Master ID duy nhất.
 3. **Dynamic Inventory Sync**: 
    - Số lượng phòng trống được cache tại Redis với TTL ngắn (10-15 phút) trong giờ cao điểm.

@@ -36,7 +36,7 @@ export const Navbar = () => {
         setShowAuthModal(false);
         resetForm();
         await showAlert(
-          lang === 'vi' ? 'Đăng ký tài khoản thành công! Chào mừng bạn đến với VinaTravel.' : 'Account registered successfully! Welcome to VinaTravel.',
+          lang === 'vi' ? 'Đăng ký tài khoản thành công! Chào mừng bạn đến với DuBaoTravel.' : 'Account registered successfully! Welcome to DuBaoTravel.',
           'success',
           lang === 'vi' ? 'Đăng ký thành công' : 'Registration Successful'
         );
@@ -104,7 +104,7 @@ export const Navbar = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.5rem', fontWeight: 800 }}>
           <Compass size={32} color="#319795" />
-          <span style={{ letterSpacing: '-0.5px' }} className="gradient-text">VinaTravel</span>
+          <span style={{ letterSpacing: '-0.5px' }} className="gradient-text">DuBaoTravel</span>
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>

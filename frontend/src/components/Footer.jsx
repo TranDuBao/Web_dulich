@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Compass, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Compass, Facebook, Instagram } from 'lucide-react';
 
 export const Footer = () => {
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'vi');
@@ -23,7 +23,7 @@ export const Footer = () => {
       booking: 'Khách sạn & Vé máy bay',
       policy: 'Chính sách bảo mật',
       terms: 'Điều khoản dịch vụ',
-      address: 'Tòa nhà VinaTravel, Cầu Giấy, Hà Nội'
+      address: 'Tòa nhà DuBaoTravel, Bình Thạnh, TP.Hồ Chí Minh'
     },
     en: {
       desc: 'The leading comprehensive travel booking and management portal in Vietnam.',
@@ -35,7 +35,7 @@ export const Footer = () => {
       booking: 'Hotels & Flights',
       policy: 'Privacy Policy',
       terms: 'Terms of Service',
-      address: 'VinaTravel Building, Cau Giay, Hanoi'
+      address: 'DuBaoTravel Building, Binh Thanh, HoChiMinh City'
     }
   }[lang];
 
@@ -45,13 +45,21 @@ export const Footer = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
             <Compass size={28} color="#319795" />
-            <h3 style={{ color: 'white', fontSize: '1.5rem', fontWeight: 800 }}>VinaTravel</h3>
+            <h3 style={{ color: 'white', fontSize: '1.5rem', fontWeight: 800 }}>DuBaoTravel</h3>
           </div>
           <p style={{ color: '#A0AEC0', fontSize: '0.9rem', marginBottom: '20px' }}>{t.desc}</p>
           <div style={{ display: 'flex', gap: '15px' }}>
-            <a href="#" style={{ color: '#A0AEC0' }}><Facebook size={20} /></a>
-            <a href="#" style={{ color: '#A0AEC0' }}><Instagram size={20} /></a>
-            <a href="#" style={{ color: '#A0AEC0' }}><Twitter size={20} /></a>
+            <a href="https://www.facebook.com/dubao2k4" target="_blank" rel="noopener noreferrer" style={{ color: '#A0AEC0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }}>
+              <Facebook size={20} />
+            </a>
+            <a href="https://www.instagram.com/sss_tdb5" target="_blank" rel="noopener noreferrer" style={{ color: '#A0AEC0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }}>
+              <Instagram size={20} />
+            </a>
+            <a href="https://github.com/TranDuBao" target="_blank" rel="noopener noreferrer" style={{ color: '#A0AEC0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ display: 'block' }}>
+                <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.11-.76.41-1.27.75-1.56-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.18 1.18.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.21-1.49 3.18-1.18 3.18-1.18.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.4-5.25 5.68.42.36.8 1.08.8 2.18 0 1.57-.01 2.83-.01 3.22 0 .3.21.66.8.55C20.71 21.39 24 17.08 24 12 24 5.73 18.27.5 12 .5z"/>
+              </svg>
+            </a>
           </div>
         </div>
         <div>
@@ -74,13 +82,13 @@ export const Footer = () => {
           <h4 style={{ color: 'white', marginBottom: '20px', fontSize: '1.1rem' }}>{t.contact}</h4>
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', color: '#A0AEC0' }}>
             <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><MapPin size={18} /> {t.address}</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Phone size={18} /> +84 90 123 4567</li>
-            <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Mail size={18} /> support@vinatravel.com</li>
+            <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Phone size={18} /> +84 32 517 6093</li>
+            <li style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Mail size={18} /> dubao1005@gmail.com.com</li>
           </ul>
         </div>
       </div>
       <div className="container" style={{ borderTop: '1px solid #2D3748', paddingTop: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#718096' }}>
-        <p>&copy; 2026 VinaTravel Portal. All rights reserved.</p>
+        <p>&copy; 2026 DuBaoTravel Portal. All rights reserved.</p>
       </div>
     </footer>
   );

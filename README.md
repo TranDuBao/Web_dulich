@@ -1,4 +1,4 @@
-# VinaTravel Portal - Hệ Thống Quản Lý & Đặt Chỗ Du Lịch Toàn Diện
+# DuBaoTravel Portal - Hệ Thống Quản Lý & Đặt Chỗ Du Lịch Toàn Diện
 
 Hệ thống cổng thông tin du lịch (Travel Portal) thiết kế theo mô hình **MVC** hiện đại, kết hợp cơ sở dữ liệu MySQL, Backend API Gateway Express, và Frontend React SPA (Vite) cao cấp.
 

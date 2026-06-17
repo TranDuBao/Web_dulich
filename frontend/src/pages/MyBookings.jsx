@@ -329,7 +329,7 @@ export const MyBookings = () => {
                     </div>
                     <div>
                       <span style={{ color: 'var(--text-muted)' }}>{t.accountName}:</span>
-                      <strong style={{ float: 'right' }}>CONG TY VINATRAVEL CO.LTD</strong>
+                      <strong style={{ float: 'right' }}>CONG TY DUBAOTRAVEL CO.LTD</strong>
                     </div>
                     <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '4px' }}>
                       <span style={{ color: 'var(--text-muted)' }}>{t.amountLabel}:</span>
