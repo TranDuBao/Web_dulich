@@ -92,7 +92,7 @@ sequenceDiagram
     participant Server as Express Server (Backend)
     participant SePay as SePay Gateway
     participant Bank as Ngân Hàng
-    database DB as MySQL Database
+    participant DB as MySQL Database
 
     Customer->>Client: Nhấn Đặt Tour / Vé Máy Bay
     Client->>Server: Gửi yêu cầu Đặt Chỗ (Transaction)
