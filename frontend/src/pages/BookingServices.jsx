@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { InteractiveMap } from '../components/InteractiveMap';
@@ -9,21 +9,39 @@ export const BookingServices = () => {
   const { user, token } = useAuth();
   const { showAlert } = useNotification();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('hotel'); // 'hotel' or 'flight'
+  const locationState = useLocation();
+  const queryParams = new URLSearchParams(locationState.search);
+
+  const [activeTab, setActiveTab] = useState(queryParams.get('tab') || 'hotel'); // 'hotel' or 'flight'
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'vi');
+
+  // Background Slideshow State
+  const [bgIndex, setBgIndex] = useState(0);
+  const backgrounds = [
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=80', // Resort pool
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1920&q=80', // Beach hotel
+    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80'  // Flight airplane
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBgIndex(prev => (prev + 1) % backgrounds.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Hotels states
   const [hotels, setHotels] = useState([]);
-  const [hotelLocation, setHotelLocation] = useState('');
-  const [hotelStars, setHotelStars] = useState('');
-  const [checkInDate, setCheckInDate] = useState(new Date().toISOString().split('T')[0]);
+  const [hotelLocation, setHotelLocation] = useState(queryParams.get('location') || '');
+  const [hotelStars, setHotelStars] = useState(queryParams.get('stars') || '');
+  const [checkInDate, setCheckInDate] = useState(queryParams.get('checkInDate') || new Date().toISOString().split('T')[0]);
   const [hotelLoading, setHotelLoading] = useState(false);
 
   // Flights states
   const [flights, setFlights] = useState([]);
-  const [flightFrom, setFlightFrom] = useState('');
-  const [flightTo, setFlightTo] = useState('');
-  const [flightDate, setFlightDate] = useState('');
+  const [flightFrom, setFlightFrom] = useState(queryParams.get('from') || '');
+  const [flightTo, setFlightTo] = useState(queryParams.get('to') || '');
+  const [flightDate, setFlightDate] = useState(queryParams.get('date') || '');
   const [flightLoading, setFlightLoading] = useState(false);
 
   useEffect(() => {
@@ -33,6 +51,23 @@ export const BookingServices = () => {
     window.addEventListener('languageChange', handleLangChange);
     return () => window.removeEventListener('languageChange', handleLangChange);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(locationState.search);
+    const tabParam = params.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+      if (tabParam === 'hotel') {
+        setHotelLocation(params.get('location') || '');
+        setHotelStars(params.get('stars') || '');
+        if (params.get('checkInDate')) setCheckInDate(params.get('checkInDate'));
+      } else if (tabParam === 'flight') {
+        setFlightFrom(params.get('from') || '');
+        setFlightTo(params.get('to') || '');
+        setFlightDate(params.get('date') || '');
+      }
+    }
+  }, [locationState.search]);
 
   useEffect(() => {
     if (activeTab === 'hotel') {
@@ -169,7 +204,34 @@ export const BookingServices = () => {
   }[lang];
 
   return (
-    <div className="container" style={{ marginTop: '40px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingBottom: '60px' }}>
+      {/* Animated Hero Section */}
+      <section className="hero-gradient-animated" style={{ padding: '140px 0 80px', color: 'white', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        {/* Dynamic Slideshow Background */}
+        <div className="hero-slideshow-container">
+          {backgrounds.map((bgUrl, idx) => (
+            <div 
+              key={idx}
+              className={`hero-slide ${bgIndex === idx ? 'active' : ''}`}
+              style={{ backgroundImage: `url(${bgUrl})` }}
+            />
+          ))}
+        </div>
+        
+        {/* Dark overlay for contrast */}
+        <div className="hero-overlay-gradient" />
+
+        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+          <h1 style={{ color: 'white', fontSize: '2.5rem', fontWeight: 800, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            {lang === 'vi' ? 'Vé Máy Bay & Khách Sạn' : 'Flights & Hotels'}
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.9)', marginTop: '8px', fontSize: '1.1rem', textShadow: '0 2px 5px rgba(0,0,0,0.5)' }}>
+            {lang === 'vi' ? 'Tìm kiếm vé máy bay nội địa và phòng nghỉ dưỡng cao cấp' : 'Search domestic flights and premium luxury resorts'}
+          </p>
+        </div>
+      </section>
+
+      <div className="container">
       {/* Toggles */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '30px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
         <button 
@@ -242,14 +304,21 @@ export const BookingServices = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {hotels.map(hotel => (
-                    <div key={hotel.id} className="glass-card" style={{ display: 'flex', overflow: 'hidden' }}>
+                    <div 
+                      key={hotel.id} 
+                      className="glass-card" 
+                      onClick={() => navigate(`/hotels/${hotel.id}`)}
+                      style={{ display: 'flex', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s' }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
                       <img src={hotel.image_url} alt={hotel.name} style={{ width: '180px', height: '140px', objectFit: 'cover' }} />
                       <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <h3 style={{ fontSize: '1.1rem' }}>{hotel.name}</h3>
+                            <h3 style={{ fontSize: '1.1rem', color: 'var(--primary-base)' }}>{hotel.name}</h3>
                             <span style={{ display: 'flex', gap: '2px', color: 'var(--accent-base)' }}>
-                              {[...Array(hotel.star_rating)].map((_, i) => <Star key={i} size={14} fill="var(--accent-base)" />)}
+                              {[...Array(hotel.star_rating)].map((_, i) => <Star key={i} size={14} fill="var(--accent-base)" color="var(--accent-base)" />)}
                             </span>
                           </div>
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '4px 0 8px' }}>📍 {hotel.location}</p>
@@ -260,7 +329,14 @@ export const BookingServices = () => {
                             <span style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--secondary-base)' }}>{parseInt(hotel.price_per_night).toLocaleString()}đ</span>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '8px' }}>{t.usdPrice.replace('{usd}', hotel.price_usd)}</span>
                           </div>
-                          <button onClick={() => handleBook('hotel', hotel.id, hotel.price_per_night, hotel.name)} className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '0.85rem' }}>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/hotels/${hotel.id}`);
+                            }} 
+                            className="btn btn-primary" 
+                            style={{ padding: '6px 16px', fontSize: '0.85rem' }}
+                          >
                             {t.bookBtn}
                           </button>
                         </div>
@@ -366,6 +442,7 @@ export const BookingServices = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

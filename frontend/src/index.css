@@ -193,11 +193,84 @@ nav.navbar {
   height: 80px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--bg-card);
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Translucent/Transparent state on Homepage Hero */
+nav.navbar.navbar-transparent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0) 100%) !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Solid scrolled state on Homepage */
+nav.navbar.navbar-scrolled {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--primary-base) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Solid layout-flow state on other pages */
+nav.navbar.navbar-solid {
   position: sticky;
   top: 0;
   z-index: 100;
+  background: var(--primary-base) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Central links text overrides */
+nav.navbar .container > div:nth-child(2) a {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+nav.navbar .container > div:nth-child(2) a:hover {
+  color: #4FD1C5 !important;
+}
+
+/* Logo gradient text override */
+nav.navbar .gradient-text {
+  background: linear-gradient(to right, #ffffff, #4FD1C5) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Language selector override */
+nav.navbar button.btn-outline {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+nav.navbar button.btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: white !important;
+}
+
+/* User profile button glassmorphic override */
+nav.navbar div[style*="position: relative"] > div[style*="cursor: pointer"] {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+}
+
+nav.navbar div[style*="position: relative"] > div[style*="cursor: pointer"] span {
+  color: white !important;
+}
+
+nav.navbar div[style*="position: relative"] > div[style*="cursor: pointer"] span:last-child {
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Modals */
@@ -223,6 +296,273 @@ nav.navbar {
   width: 90%;
   box-shadow: var(--shadow-lg);
   animation: fadeIn 0.3s ease-out;
+}
+
+/* --- Premium Animations & Modern UI components --- */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(49, 151, 149, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(49, 151, 149, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(49, 151, 149, 0); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animated glass backdrop with floating particles */
+.hero-gradient-animated {
+  background: linear-gradient(-45deg, #0f172a, #1e3a8a, #0f766e, #1e1b4b);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-blob-1 {
+  width: 300px;
+  height: 300px;
+  background-color: var(--secondary-base);
+  top: -50px;
+  left: 10%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.hero-blob-2 {
+  width: 400px;
+  height: 400px;
+  background-color: var(--accent-base);
+  bottom: -100px;
+  right: 5%;
+  animation: float 12s ease-in-out infinite;
+}
+
+/* Tab button inside search panel */
+.search-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 20px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-tab-btn.active {
+  color: white;
+  border-bottom: 2px solid var(--secondary-base);
+}
+
+.search-tab-btn:hover {
+  color: white;
+}
+
+/* Popular Destinations Grid Card */
+.destination-card {
+  position: relative;
+  height: 240px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-smooth);
+}
+
+.destination-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.destination-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.3) 60%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  color: white;
+  transition: var(--transition-smooth);
+}
+
+.destination-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.destination-card:hover img {
+  transform: scale(1.1);
+}
+
+.destination-card:hover .destination-overlay {
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.5) 60%, rgba(15, 23, 42, 0.2) 100%);
+}
+
+.destination-card .explore-btn {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: var(--transition-smooth);
+  margin-top: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--secondary-base);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.destination-card:hover .explore-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stats Section Card styling */
+.stat-card {
+  text-align: center;
+  padding: 30px 20px;
+  border-radius: var(--radius-md);
+  transition: var(--transition-smooth);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--secondary-base);
+  box-shadow: 0 10px 25px -5px rgba(49, 151, 149, 0.15);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--secondary-base);
+  line-height: 1.2;
+  margin-bottom: 5px;
+  background: linear-gradient(135deg, var(--secondary-base) 0%, var(--primary-base) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Testimonial slider card */
+.testimonial-card {
+  padding: 30px;
+  border-radius: var(--radius-md);
+  background: white;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+
+.testimonial-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--secondary-base);
+}
+
+/* Scroll Snap container for horizontal scroll items */
+.horizontal-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 10px 5px 20px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 10px;
+}
+
+.horizontal-scroll > * {
+  scroll-snap-align: start;
+}
+
+/* Ken Burns Slideshow for Hero Background */
+.hero-slideshow-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.25) brightness(1.05);
+}
+
+.hero-slide.active {
+  opacity: 1;
+  animation: kenburns 10s ease-in-out infinite alternate;
+}
+
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0px, 0px);
+  }
+  100% {
+    transform: scale(1.12) translate(-8px, -5px);
+  }
+}
+
+.hero-overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.45) 0%,
+    rgba(15, 23, 42, 0.15) 50%,
+    rgba(15, 23, 42, 0.45) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* PDF PRINTING STYLES */
@@ -275,3 +615,124 @@ nav.navbar {
     background: none !important;
   }
 }
+
+/* Animated Navbar Extras */
+.navbar-animation-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Walking character holding VN flag */
+.navbar-walker {
+  position: absolute;
+  bottom: 2px;
+  font-size: 1.3rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  animation: navbarWalk 32s linear infinite;
+  opacity: 0.85;
+}
+
+.navbar-walker-2 {
+  position: absolute;
+  bottom: 2px;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  animation: navbarWalkReverse 28s linear infinite;
+  opacity: 0.85;
+}
+
+/* Flying mini airplane */
+.navbar-plane {
+  position: absolute;
+  top: 14px;
+  font-size: 1.1rem;
+  animation: navbarFly 24s linear infinite;
+  opacity: 0.85;
+}
+
+/* Keyframes for Walking Right and Left */
+@keyframes navbarWalk {
+  0% {
+    left: -60px;
+    transform: scaleX(1);
+  }
+  48% {
+    left: 100%;
+    transform: scaleX(1);
+  }
+  50% {
+    left: 100%;
+    transform: scaleX(-1);
+  }
+  98% {
+    left: -60px;
+    transform: scaleX(-1);
+  }
+  100% {
+    left: -60px;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes navbarWalkReverse {
+  0% {
+    right: -60px;
+    transform: scaleX(-1);
+  }
+  48% {
+    right: 100%;
+    transform: scaleX(-1);
+  }
+  50% {
+    right: 100%;
+    transform: scaleX(1);
+  }
+  98% {
+    right: -60px;
+    transform: scaleX(1);
+  }
+  100% {
+    right: -60px;
+    transform: scaleX(-1);
+  }
+}
+
+/* Keyframes for Flying Plane */
+@keyframes navbarFly {
+  0% {
+    left: -80px;
+    transform: scaleX(1) translateY(0);
+  }
+  25% {
+    transform: scaleX(1) translateY(-6px);
+  }
+  48% {
+    left: 100%;
+    transform: scaleX(1) translateY(0);
+  }
+  50% {
+    left: 100%;
+    transform: scaleX(-1) translateY(0);
+  }
+  75% {
+    transform: scaleX(-1) translateY(6px);
+  }
+  98% {
+    left: -80px;
+    transform: scaleX(-1) translateY(0);
+  }
+  100% {
+    left: -80px;
+    transform: scaleX(1) translateY(0);
+  }
+}
+

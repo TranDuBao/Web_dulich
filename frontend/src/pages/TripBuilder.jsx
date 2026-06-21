@@ -8,6 +8,21 @@ export const TripBuilder = () => {
   const { showAlert } = useNotification();
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'vi');
 
+  // Background Slideshow State
+  const [bgIndex, setBgIndex] = useState(0);
+  const backgrounds = [
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80', // Beach sand
+    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1920&q=80', // Danang map/bridges
+    'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1920&q=80'  // Halong bay view
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBgIndex(prev => (prev + 1) % backgrounds.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Plan Details
   const [title, setTitle] = useState('Hành trình tự thiết kế 2026');
   const [destination, setDestination] = useState('Đà Nẵng');
@@ -188,12 +203,34 @@ export const TripBuilder = () => {
   }[lang];
 
   return (
-    <div className="container" style={{ marginTop: '40px' }}>
-      {/* Title */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }} className="no-print">
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }} className="gradient-text">{t.title}</h1>
-        <p style={{ color: 'var(--text-muted)' }}>{t.subtitle}</p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingBottom: '60px' }}>
+      {/* Animated Hero Section */}
+      <section className="hero-gradient-animated subpage-hero no-print" style={{ padding: '140px 0 80px', color: 'white', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        {/* Dynamic Slideshow Background */}
+        <div className="hero-slideshow-container">
+          {backgrounds.map((bgUrl, idx) => (
+            <div 
+              key={idx}
+              className={`hero-slide ${bgIndex === idx ? 'active' : ''}`}
+              style={{ backgroundImage: `url(${bgUrl})` }}
+            />
+          ))}
+        </div>
+        
+        {/* Dark overlay for contrast */}
+        <div className="hero-overlay-gradient" />
+
+        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
+          <h1 style={{ color: 'white', fontSize: '2.5rem', fontWeight: 800, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            {t.title}
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.9)', marginTop: '8px', fontSize: '1.1rem', textShadow: '0 2px 5px rgba(0,0,0,0.5)' }}>
+            {t.subtitle}
+          </p>
+        </div>
+      </section>
+
+      <div className="container">
 
       {/* Print Only Header Banner */}
       <div className="print-only" style={{ display: 'none', borderBottom: '2px solid #2D3748', paddingBottom: '20px', marginBottom: '30px' }}>
@@ -367,6 +404,7 @@ export const TripBuilder = () => {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

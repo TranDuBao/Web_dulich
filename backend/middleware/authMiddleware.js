@@ -28,4 +28,20 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+const hotelOwner = (req, res, next) => {
+  if (req.user && req.user.role === 'hotel_owner') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Quyền truy cập bị từ chối, yêu cầu vai trò chủ khách sạn' });
+  }
+};
+
+const hotelOwnerOrAdmin = (req, res, next) => {
+  if (req.user && (req.user.role === 'hotel_owner' || req.user.role === 'admin')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Quyền truy cập bị từ chối, yêu cầu vai trò admin hoặc chủ khách sạn' });
+  }
+};
+
+module.exports = { protect, admin, hotelOwner, hotelOwnerOrAdmin };

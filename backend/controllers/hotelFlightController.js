@@ -115,12 +115,25 @@ const getHotelById = async (req, res) => {
       [id]
     );
 
+    const [rooms] = await db.query('SELECT * FROM rooms WHERE hotel_id = ?', [id]);
+
     const hotel = hotels[0];
     const dynamicPrice = calculateDynamicPrice(hotel.price_per_night, checkInDate, 1.0);
     hotel.original_price = hotel.price_per_night;
     hotel.price_per_night = dynamicPrice;
     hotel.price_usd = Math.round((dynamicPrice / 25000) * 100) / 100;
     hotel.reviews = reviews;
+    
+    // Process room prices dynamically
+    hotel.rooms = rooms.map(room => {
+      const roomDynamicPrice = calculateDynamicPrice(room.price_per_night, checkInDate, 1.0);
+      return {
+        ...room,
+        original_price: room.price_per_night,
+        price_per_night: roomDynamicPrice,
+        price_usd: Math.round((roomDynamicPrice / 25000) * 100) / 100
+      };
+    });
 
     res.json(hotel);
   } catch (error) {

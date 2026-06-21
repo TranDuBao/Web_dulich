@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { Globe, User, LogOut, Briefcase, Calendar, Map, Compass } from 'lucide-react';
+import { 
+  Globe, User, LogOut, Briefcase, Calendar, Compass, 
+  Shield, Building, ChevronDown, Settings, CreditCard 
+} from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout, login, register } = useAuth();
@@ -11,6 +14,26 @@ export const Navbar = () => {
   const [lang, setLang] = useState(localStorage.getItem('lang') || 'vi');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Scrolled & Location states
+  const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const isTransparentPage = ['/', '/booking-services', '/trip-builder'].includes(location.pathname);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   // Auth Form State
   const [email, setEmail] = useState('');
@@ -19,11 +42,21 @@ export const Navbar = () => {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const toggleLanguage = () => {
     const nextLang = lang === 'vi' ? 'en' : 'vi';
     setLang(nextLang);
     localStorage.setItem('lang', nextLang);
-    // Dispatch event to notify other components of language change
     window.dispatchEvent(new Event('languageChange'));
   };
 
@@ -61,6 +94,7 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     logout();
+    setShowDropdown(false);
     navigate('/');
   };
 
@@ -69,7 +103,7 @@ export const Navbar = () => {
       tours: 'Tìm Tour',
       hotelsFlights: 'Vé & Khách Sạn',
       tripBuilder: 'Thiết Kế Lịch Trình',
-      myBookings: 'Đơn Hàng',
+      myBookings: 'Đơn hàng của tôi',
       login: 'Đăng nhập',
       logout: 'Đăng xuất',
       register: 'Đăng ký',
@@ -79,13 +113,18 @@ export const Navbar = () => {
       noAccount: 'Chưa có tài khoản? Đăng ký ngay',
       hasAccount: 'Đã có tài khoản? Đăng nhập',
       authTitle: isRegister ? 'TẠO TÀI KHOẢN MỚI' : 'ĐĂNG NHẬP HỆ THỐNG',
-      adminPanel: 'Trang Admin'
+      adminPanel: 'Trang quản trị',
+      partnerPanel: 'Kênh đối tác',
+      hello: 'Xin chào',
+      roleAdmin: 'Quản trị viên',
+      roleOwner: 'Chủ đối tác',
+      roleUser: 'Thành viên'
     },
     en: {
       tours: 'Find Tours',
       hotelsFlights: 'Flights & Hotels',
       tripBuilder: 'Trip Builder',
-      myBookings: 'Bookings',
+      myBookings: 'My Bookings',
       login: 'Login',
       logout: 'Logout',
       register: 'Register',
@@ -95,58 +134,258 @@ export const Navbar = () => {
       noAccount: "Don't have an account? Register",
       hasAccount: 'Already have an account? Login',
       authTitle: isRegister ? 'CREATE AN ACCOUNT' : 'LOGIN TO PORTAL',
-      adminPanel: 'Admin Panel'
+      adminPanel: 'Admin Panel',
+      partnerPanel: 'Partner Portal',
+      hello: 'Hello',
+      roleAdmin: 'System Admin',
+      roleOwner: 'Hotel Partner',
+      roleUser: 'Standard Member'
     }
   }[lang];
 
+  const getRoleText = (role) => {
+    switch (role) {
+      case 'admin': return t.roleAdmin;
+      case 'hotel_owner': return t.roleOwner;
+      default: return t.roleUser;
+    }
+  };
+
   return (
-    <nav className="navbar">
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.5rem', fontWeight: 800 }}>
-          <Compass size={32} color="#319795" />
+    <nav className={`navbar ${isTransparentPage ? (scrolled ? 'navbar-scrolled' : 'navbar-transparent') : 'navbar-solid'}`}>
+      {/* Animated Characters & Plane */}
+      <div className="navbar-animation-container">
+        {/* Walker 1: tourist carrying flag */}
+        <div className="navbar-walker">
+          <span style={{ fontSize: '1.2rem' }}>🚶‍♂️</span>
+          <span style={{ fontSize: '0.85rem', transform: 'translateY(-5px) rotate(5deg)' }}>🇻🇳</span>
+        </div>
+        {/* Walker 2: hiker carrying flag */}
+        <div className="navbar-walker-2">
+          <span style={{ fontSize: '0.85rem', transform: 'translateY(-5px) rotate(-5deg)' }}>🇻🇳</span>
+          <span style={{ fontSize: '1.1rem' }}>🏃‍♀️</span>
+        </div>
+        {/* Flying plane */}
+        <div className="navbar-plane">
+          <span>✈️</span>
+        </div>
+      </div>
+
+      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%', position: 'relative', zIndex: 2 }}>
+        {/* Brand Logo */}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.6rem', fontWeight: 800 }}>
+          <Compass size={34} color="var(--secondary-base)" />
           <span style={{ letterSpacing: '-0.5px' }} className="gradient-text">DuBaoTravel</span>
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-light)' }}>
-            <Compass size={18} /> {t.tours}
+        {/* Central Clean Spaced Links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-base)', transition: 'var(--transition-smooth)' }} className="hover-lift">
+            <Compass size={18} color="var(--secondary-base)" /> {t.tours}
           </Link>
-          <Link to="/booking-services" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-light)' }}>
-            <Briefcase size={18} /> {t.hotelsFlights}
+          <Link to="/booking-services" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-base)', transition: 'var(--transition-smooth)' }} className="hover-lift">
+            <Briefcase size={18} color="var(--secondary-base)" /> {t.hotelsFlights}
           </Link>
-          <Link to="/trip-builder" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-light)' }}>
-            <Calendar size={18} /> {t.tripBuilder}
+          <Link to="/trip-builder" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-base)', transition: 'var(--transition-smooth)' }} className="hover-lift">
+            <Calendar size={18} color="var(--secondary-base)" /> {t.tripBuilder}
           </Link>
-          {user && (
-            <Link to="/my-bookings" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary-light)' }}>
-              <Briefcase size={18} /> {t.myBookings}
-            </Link>
-          )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button onClick={toggleLanguage} className="btn btn-outline" style={{ padding: '8px 12px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* Right Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          {/* Language Selector */}
+          <button onClick={toggleLanguage} className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--border-color)', borderRadius: '30px' }}>
             <Globe size={16} />
-            {lang.toUpperCase()}
+            <span style={{ fontWeight: 700 }}>{lang.toUpperCase()}</span>
           </button>
 
+          {/* User Auth Info with Premium Dropdown */}
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--secondary-base)', color: 'white', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                  {user.name[0].toUpperCase()}
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+              <div 
+                onClick={() => setShowDropdown(!showDropdown)} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '10px', 
+                  cursor: 'pointer',
+                  padding: '6px 12px',
+                  borderRadius: '30px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'white',
+                  transition: 'var(--transition-smooth)'
+                }}
+                className="hover-lift"
+              >
+                {user.avatar_url ? (
+                  <img 
+                    src={user.avatar_url} 
+                    alt={user.name} 
+                    style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} 
+                  />
+                ) : (
+                  <div style={{ 
+                    width: '32px', 
+                    height: '32px', 
+                    borderRadius: '50%', 
+                    backgroundColor: 'var(--secondary-base)', 
+                    color: 'white', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem'
+                  }}>
+                    {user.name[0].toUpperCase()}
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '120px' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {user.name}
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    {getRoleText(user.role)}
+                  </span>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{user.role === 'admin' ? t.adminPanel : 'Thành viên'}</span>
-                </div>
+                <ChevronDown size={14} color="var(--text-muted)" style={{ transform: showDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s ease' }} />
               </div>
-              <button onClick={handleLogout} className="btn btn-outline" style={{ padding: '8px 12px', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                <LogOut size={16} />
-              </button>
+
+              {/* Premium Glassmorphism Dropdown Menu */}
+              {showDropdown && (
+                <div 
+                  className="glass-card animate-fade-in" 
+                  style={{ 
+                    position: 'absolute', 
+                    top: '52px', 
+                    right: 0, 
+                    width: '240px', 
+                    padding: '12px 0', 
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-color)',
+                    boxShadow: 'var(--shadow-lg)',
+                    zIndex: 200,
+                    animation: 'fadeIn 0.2s ease-out'
+                  }}
+                >
+                  <div style={{ padding: '8px 20px', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-base)' }}>{user.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{user.email}</div>
+                  </div>
+
+                  <Link 
+                    to="/profile" 
+                    onClick={() => setShowDropdown(false)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '12px', 
+                      padding: '10px 20px', 
+                      fontSize: '0.9rem', 
+                      color: 'var(--text-main)',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-main)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <User size={16} color="var(--secondary-base)" />
+                    {lang === 'vi' ? 'Thông tin cá nhân' : 'Personal Profile'}
+                  </Link>
+
+                  <Link 
+                    to="/my-bookings" 
+                    onClick={() => setShowDropdown(false)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '12px', 
+                      padding: '10px 20px', 
+                      fontSize: '0.9rem', 
+                      color: 'var(--text-main)',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-main)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    <CreditCard size={16} color="var(--secondary-base)" />
+                    {t.myBookings}
+                  </Link>
+
+                  {(user.role === 'hotel_owner' || user.role === 'admin') && (
+                    <Link 
+                      to="/partner" 
+                      onClick={() => setShowDropdown(false)}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '12px', 
+                        padding: '10px 20px', 
+                        fontSize: '0.9rem', 
+                        color: 'var(--text-main)',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-main)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <Building size={16} color="var(--secondary-base)" />
+                      {t.partnerPanel}
+                    </Link>
+                  )}
+
+                  {user.role === 'admin' && (
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setShowDropdown(false)}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '12px', 
+                        padding: '10px 20px', 
+                        fontSize: '0.9rem', 
+                        color: 'var(--text-main)',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-main)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <Shield size={16} color="var(--secondary-base)" />
+                      {t.adminPanel}
+                    </Link>
+                  )}
+
+                  <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '8px', paddingTop: '8px' }}>
+                    <button 
+                      onClick={handleLogout}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '12px', 
+                        padding: '10px 20px', 
+                        fontSize: '0.9rem', 
+                        color: 'var(--danger-color)',
+                        width: '100%',
+                        textAlign: 'left',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(229, 62, 62, 0.05)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      <LogOut size={16} color="var(--danger-color)" />
+                      {t.logout}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <button onClick={() => { setIsRegister(false); setShowAuthModal(true); }} className="btn btn-primary" style={{ padding: '10px 20px', borderRadius: 'var(--radius-sm)' }}>
+            <button 
+              onClick={() => { setIsRegister(false); setShowAuthModal(true); }} 
+              className="btn btn-primary" 
+              style={{ padding: '10px 20px', borderRadius: '30px' }}
+            >
               <User size={16} />
               {t.login}
             </button>
@@ -240,3 +479,5 @@ export const Navbar = () => {
     </nav>
   );
 };
+
+export default Navbar;

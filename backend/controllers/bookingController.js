@@ -227,10 +227,39 @@ const cancelBooking = async (req, res) => {
   }
 };
 
+const getAllBookings = async (req, res) => {
+  try {
+    const [bookings] = await db.query(
+      `SELECT b.*, u.name as user_name, u.email as user_email,
+        CASE 
+          WHEN b.type = 'tour' THEN t.title 
+          WHEN b.type = 'hotel' THEN h.name 
+          WHEN b.type = 'flight' THEN CONCAT(f.airline, ' (', f.flight_number, ')')
+        END as service_name,
+        CASE 
+          WHEN b.type = 'tour' THEN t.image_url 
+          WHEN b.type = 'hotel' THEN h.image_url 
+          WHEN b.type = 'flight' THEN 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=400&q=80'
+        END as service_image
+      FROM bookings b
+      JOIN users u ON b.user_id = u.id
+      LEFT JOIN tours t ON b.type = 'tour' AND b.reference_id = t.id
+      LEFT JOIN hotels h ON b.type = 'hotel' AND b.reference_id = h.id
+      LEFT JOIN flights f ON b.type = 'flight' AND b.reference_id = f.id
+      ORDER BY b.booking_date DESC`
+    );
+    res.json(bookings);
+  } catch (error) {
+    console.error('getAllBookings error:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách đặt chỗ hệ thống' });
+  }
+};
+
 module.exports = {
   createBooking,
   getMyBookings,
   getBookingById,
   processPayment,
-  cancelBooking
+  cancelBooking,
+  getAllBookings
 };

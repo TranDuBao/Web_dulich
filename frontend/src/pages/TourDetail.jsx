@@ -21,6 +21,33 @@ export const TourDetail = () => {
   // Review states
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [reviewError, setReviewError] = useState('');
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+
+  const [hasBooked, setHasBooked] = useState(false);
+
+  useEffect(() => {
+    if (user && token && tour) {
+      checkUserBooking();
+    }
+  }, [user, token, tour]);
+
+  const checkUserBooking = async () => {
+    try {
+      const res = await fetch('http://localhost:5001/api/bookings', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const bookings = await res.json();
+        const bookedThisTour = bookings.some(b => b.type === 'tour' && b.reference_id === tour.id);
+        setHasBooked(bookedThisTour);
+      }
+    } catch (err) {
+      console.error('Error checking user booking:', err);
+    }
+  };
 
   useEffect(() => {
     const handleLangChange = () => {
@@ -312,7 +339,17 @@ export const TourDetail = () => {
 
             {/* Write Review Form */}
             {user ? (
-              <form onSubmit={handleReviewSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+              !hasBooked ? (
+                <div style={{ padding: '24px', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', textAlign: 'center', color: 'var(--danger-color)', border: '1px dashed var(--danger-color)', fontSize: '0.9rem', width: '100%', marginTop: '24px' }}>
+                  <ShieldAlert size={36} color="var(--danger-color)" />
+                  <span style={{ fontWeight: 600 }}>
+                    {lang === 'vi' 
+                      ? 'Chỉ khách hàng đã đặt tour này mới được viết đánh giá!' 
+                      : 'Only customers who have booked this tour can write a review!'}
+                  </span>
+                </div>
+              ) : (
+                <form onSubmit={handleReviewSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}>{t.writeReview}</h3>
                 
                 {reviewError && <div style={{ color: 'var(--danger-color)', marginBottom: '12px', fontSize: '0.9rem' }}>{reviewError}</div>}
@@ -347,6 +384,7 @@ export const TourDetail = () => {
 
                 <button type="submit" className="btn btn-primary">{t.submitReview}</button>
               </form>
+              )
             ) : (
               <div style={{ padding: '16px', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
                 <ShieldAlert size={18} />

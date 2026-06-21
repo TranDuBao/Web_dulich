@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(255) NOT NULL,
   phone VARCHAR(50),
   role VARCHAR(20) DEFAULT 'user',
+  avatar_url LONGTEXT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -36,7 +37,21 @@ CREATE TABLE IF NOT EXISTS hotels (
   image_url VARCHAR(500),
   description TEXT,
   lat DECIMAL(10, 8),
-  lng DECIMAL(11, 8)
+  lng DECIMAL(11, 8),
+  owner_id INT NULL,
+  FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS rooms (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  hotel_id INT NOT NULL,
+  room_type VARCHAR(100) NOT NULL,
+  price_per_night DECIMAL(15, 2) NOT NULL,
+  max_occupancy INT DEFAULT 2,
+  image_url VARCHAR(500),
+  description TEXT,
+  total_rooms INT DEFAULT 5,
+  FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS flights (
@@ -82,6 +97,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   entity_id INT NOT NULL,
   rating INT NOT NULL,
   comment TEXT,
+  image_url LONGTEXT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -99,12 +115,15 @@ CREATE TABLE IF NOT EXISTS payments (
 
 -- Seed Data
 
--- Insert Users (Password is bcrypt for 'user123' or 'admin123')
--- user123: $2b$10$tZ2cK.2xY/C7Uo8kMtf3OexvT7eYJ3L99s4f5n9V5d7N3U0pU.fP.
--- admin123: $2b$10$7zB356.b17g79t1Kx6Q/be1B9u06W6g4f.Yv/q2e6.x.D/G3Wb/F.
+-- Insert Users (Password is bcrypt for 'user123', 'admin123', 'owner123')
+-- user123: $2a$10$eN0mhoeB26ULXtQ2G1CRkuyIWxZBTivTD8o6EySzoFhsMclXPW6TS
+-- admin123: $2a$10$zJ82e/E8sCiNgYRX1PP4o.4XiF/B5/gF3bRJZ7MYsw5N2JVJTN/eG
+-- owner123: $2a$10$wmI5Gcnnk9Fdn8x29MYpSevDQYUfzWMMVLhiyPEsBqFjbbmOx2NvK
 INSERT INTO users (id, email, password, name, phone, role) VALUES
-(1, 'admin@webdulich.com', '$2b$10$7zB356.b17g79t1Kx6Q/be1B9u06W6g4f.Yv/q2e6.x.D/G3Wb/F.', 'Quản trị viên', '0901234567', 'admin'),
-(2, 'user@webdulich.com', '$2b$10$tZ2cK.2xY/C7Uo8kMtf3OexvT7eYJ3L99s4f5n9V5d7N3U0pU.fP.', 'Nguyễn Văn A', '0987654321', 'user');
+(1, 'admin@webdulich.com', '$2a$10$zJ82e/E8sCiNgYRX1PP4o.4XiF/B5/gF3bRJZ7MYsw5N2JVJTN/eG', 'Quản trị viên', '0901234567', 'admin'),
+(2, 'user@webdulich.com', '$2a$10$eN0mhoeB26ULXtQ2G1CRkuyIWxZBTivTD8o6EySzoFhsMclXPW6TS', 'Nguyễn Văn A', '0987654321', 'user'),
+(3, 'owner@webdulich.com', '$2a$10$wmI5Gcnnk9Fdn8x29MYpSevDQYUfzWMMVLhiyPEsBqFjbbmOx2NvK', 'Chủ khách sạn Vinpearl', '0911223344', 'hotel_owner'),
+(4, 'owner2@webdulich.com', '$2a$10$wmI5Gcnnk9Fdn8x29MYpSevDQYUfzWMMVLhiyPEsBqFjbbmOx2NvK', 'Chủ khách sạn Metropole', '0922334455', 'hotel_owner');
 
 -- Insert Tours
 INSERT INTO tours (id, title, description, destination, duration_days, duration_nights, price, image_url, start_date, max_participants, rating, highlights, itinerary_preview) VALUES
@@ -114,11 +133,18 @@ INSERT INTO tours (id, title, description, destination, duration_days, duration_
 (4, 'Hành Trình Di Sản Miền Trung: Đà Nẵng - Hội An - Huế', 'Khám phá chuỗi di sản miền Trung từ sự hiện đại của Đà Nẵng, sự cổ kính của Phố cổ Hội An đến nét trang nghiêm của Đại Nội Huế và Lăng tẩm triều Nguyễn.', 'Đà Nẵng - Hội An - Huế', 4, 3, 4200000.00, 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80', '2026-07-15', 18, 4.6, 'Tham quan Bà Nà Hills - Cầu Vàng,Thả đèn hoa đăng tại Phố cổ Hội An,Khám phá Đại Nội Huế cổ kính,Thưởng thức ẩm thực cung đình Huế', 'Ngày 1: Đón sân bay Đà Nẵng - Ngũ Hành Sơn - Hội An | Ngày 2: KDL Bà Nà Hills - Cầu Vàng - Đà Nẵng | Ngày 3: Đà Nẵng - Lăng Cô - Cố đô Huế | Ngày 4: Đại nội Huế - Chùa Thiên Mụ - Tiễn sân bay');
 
 -- Insert Hotels
-INSERT INTO hotels (id, name, location, price_per_night, star_rating, image_url, description, lat, lng) VALUES
-(1, 'Vinpearl Resort & Spa Phú Quốc', 'Khu Bãi Dài, Xã Gành Dầu, Phú Quốc, Kiên Giang', 2200000.00, 5, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80', 'Mang đậm kiến trúc Á Đông với mái ngói đỏ đặc trưng, Vinpearl Resort & Spa Phú Quốc đem đến không gian nghỉ dưỡng sang trọng bên bãi biển riêng tư hoang sơ.', 10.334185, 103.856983),
-(2, 'InterContinental Danang Sun Peninsula Resort', 'Bán đảo Sơn Trà, Đà Nẵng', 7500000.00, 5, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80', 'Tọa lạc giữa sườn đồi thoai thoải của bán đảo Sơn Trà với tầm nhìn tuyệt đẹp ra vịnh biển riêng tư, khu nghỉ dưỡng là tuyệt tác nghệ thuật của KTS lừng danh Bill Bensley.', 16.121516, 108.312952),
-(3, 'Sofitel Legend Metropole Hà Nội', '15 Ngô Quyền, Hoàn Kiếm, Hà Nội', 5500000.00, 5, 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80', 'Khách sạn di sản mang phong cách kiến trúc thời thuộc địa Pháp sang trọng bậc nhất Hà Nội, nằm ngay trung tâm thành phố gần Hồ Hoàn Kiếm và Nhà Hát Lớn.', 21.025062, 105.856230),
-(4, 'Lotte Hotel Hà Nội', '54 Liễu Giai, Cống Vị, Ba Đình, Hà Nội', 2600000.00, 5, 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80', 'Tọa lạc từ tầng 33 đến 64 của tòa nhà Lotte Center 65 tầng hiện đại, mang đến tầm nhìn toàn cảnh ngoạn mục ra hồ Tây và toàn thành phố Hà Nội.', 21.031952, 105.811802);
+INSERT INTO hotels (id, name, location, price_per_night, star_rating, image_url, description, lat, lng, owner_id) VALUES
+(1, 'Vinpearl Resort & Spa Phú Quốc', 'Khu Bãi Dài, Xã Gành Dầu, Phú Quốc, Kiên Giang', 2200000.00, 5, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80', 'Mang đậm kiến trúc Á Đông với mái ngói đỏ đặc trưng, Vinpearl Resort & Spa Phú Quốc đem đến không gian nghỉ dưỡng sang trọng bên bãi biển riêng tư hoang sơ.', 10.334185, 103.856983, 3),
+(2, 'InterContinental Danang Sun Peninsula Resort', 'Bán đảo Sơn Trà, Đà Nẵng', 7500000.00, 5, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80', 'Tọa lạc giữa sườn đồi thoai thoải của bán đảo Sơn Trà với tầm nhìn tuyệt đẹp ra vịnh biển riêng tư, khu nghỉ dưỡng là tuyệt tác nghệ thuật của KTS lừng danh Bill Bensley.', 16.121516, 108.312952, 3),
+(3, 'Sofitel Legend Metropole Hà Nội', '15 Ngô Quyền, Hoàn Kiếm, Hà Nội', 5500000.00, 5, 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80', 'Khách sạn di sản mang phong cách kiến trúc thời thuộc địa Pháp sang trọng bậc nhất Hà Nội, nằm ngay trung tâm thành phố gần Hồ Hoàn Kiếm và Nhà Hát Lớn.', 21.025062, 105.856230, 4),
+(4, 'Lotte Hotel Hà Nội', '54 Liễu Giai, Cống Vị, Ba Đình, Hà Nội', 2600000.00, 5, 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80', 'Tọa lạc từ tầng 33 đến 64 của tòa nhà Lotte Center 65 tầng hiện đại, mang đến tầm nhìn toàn cảnh ngoạn mục ra hồ Tây và toàn thành phố Hà Nội.', 21.031952, 105.811802, 4);
+
+-- Insert Rooms
+INSERT INTO rooms (id, hotel_id, room_type, price_per_night, max_occupancy, image_url, description, total_rooms) VALUES
+(1, 1, 'Deluxe Ocean View', 2200000.00, 2, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80', 'Phòng Deluxe hướng biển sang trọng với ban công riêng, giường đôi lớn và đầy đủ tiện nghi hiện đại.', 5),
+(2, 1, 'Executive Suite', 3500000.00, 3, 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80', 'Phòng Suite cao cấp với không gian tiếp khách riêng biệt, bồn tắm nằm rộng rãi và đặc quyền Suite Lounge.', 2),
+(3, 2, 'Classic Hillside Room', 7500000.00, 2, 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80', 'Phòng Classic ẩn mình giữa sườn đồi bán đảo Sơn Trà, tầm nhìn ôm trọn vịnh biển hoang sơ.', 4),
+(4, 3, 'Classic Opera Room', 5500000.00, 2, 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80', 'Phòng di sản mang phong cách thuộc địa Pháp ấm cúng, sàn gỗ lim sang trọng và ban công hướng phố cổ kính.', 8);
 
 -- Insert Flights
 INSERT INTO flights (id, airline, flight_number, departure_airport, arrival_airport, departure_time, price, duration) VALUES
