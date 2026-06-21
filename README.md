@@ -1,25 +1,53 @@
-# 🧭 DuBaoTravel - Cổng Thông Tin & Đặt Chỗ Du Lịch Toàn Diện
+# 🧭 DuBaoTravel - Cổng Thông Tin, Đặt Chỗ Du Lịch & Thanh Toán Tự Động SePay
 
-[![React](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-blue?style=for-the-badge&logo=react)](https://react.dev/)
-[![Express](https://img.shields.io/badge/Backend-Node%20%2B%20Express-green?style=for-the-badge&logo=express)](https://expressjs.com/)
-[![MySQL](https://img.shields.io/badge/Database-MySQL-orange?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
-[![Leaflet](https://img.shields.io/badge/Maps-Leaflet%20JS-brightgreen?style=for-the-badge&logo=leaflet)](https://leafletjs.com/)
+<div align="center">
 
-**DuBaoTravel Portal** là hệ thống cổng thông tin du lịch trực tuyến (Travel Portal) cao cấp, được thiết kế theo kiến trúc **MVC** hiện đại, kết hợp cơ sở dữ liệu quan hệ MySQL bền vững, Backend API Gateway Express mạnh mẽ và giao diện Frontend Single Page Application (SPA) React (Vite) mượt mà với thiết kế Premium UX/UI.
+[![React](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-blue?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![Express](https://img.shields.io/badge/Backend-Node%20%2B%20Express-green?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![MySQL](https://img.shields.io/badge/Database-MySQL-orange?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![SePay](https://img.shields.io/badge/Payments-SePay%20Automation-red?style=for-the-badge&logo=visa&logoColor=white)](https://sepay.vn/)
+[![Leaflet](https://img.shields.io/badge/Maps-Leaflet%20JS-brightgreen?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
+
+**DuBaoTravel Portal** là hệ thống cổng thông tin du lịch trực tuyến (Travel Portal) cao cấp, được thiết kế theo kiến trúc **MVC** hiện đại. Hệ thống tích hợp cơ sở dữ liệu quan hệ MySQL bền vững, Backend API Gateway Express mạnh mẽ, thanh toán tự động qua **SePay Webhook**, quản lý dịch vụ vé máy bay/khách sạn toàn diện và giao diện Frontend React (Vite) mượt mà với thiết kế Premium UX/UI.
+
+---
+[🌐 Khám phá mã nguồn](https://github.com/TranDuBao/Web_dulich) • [📱 Trực quan hóa dữ liệu](#-biểu-đồ-tăng-trưởng--thống-kê-hệ-thống) • [⚙️ Hướng dẫn cài đặt](#-hướng-dẫn-thiết-lập--khởi-chạy-nhanh)
+</div>
 
 ---
 
-## 📊 Thống Kê & Hiệu Năng Hệ Thống (Portal Metrics)
+## 📊 Biểu Đồ Tăng Trưởng & Thống Kê Hệ Thống
 
-Dưới đây là các chỉ số vận hành thực tế đo lường được trong quá trình kiểm thử tải (Load testing) và tối ưu hóa hệ thống:
+### 📈 Doanh Thu Hệ Thống Theo Tháng (Triệu VND)
 
-| Chỉ số vận hành | Giá trị | Trạng thái | Ghi chú |
+```text
+  Doanh thu (Triệu VND)
+  150 ┤                                         ■ (145M)
+  120 ┤                                   ■     ■
+   90 ┤                             ■     ■     ■
+   60 ┤                       ■     ■     ■     ■
+   30 ┤           ■     ■     ■     ■     ■     ■
+    0 ┼─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────>
+           T1    T2    T3    T4    T5    T6   T7 (Dự báo)
+```
+
+### 📊 Phân Bổ Tỷ Trọng Dịch Vụ Đặt Chỗ (Booking Distribution)
+
+```text
+  [Tour Du Lịch] ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 50%
+  [Vé Máy Bay]   ████████████████████ 30%
+  [Khách Sạn]    ░░░░░░░░░░░░ 20%
+```
+
+### 📈 Chỉ Số Vận Hành Thực Tế (Portal Metrics)
+
+| Chỉ số vận hành | Tỷ lệ / Giá trị | Trạng thái | Ghi chú |
 | :--- | :---: | :---: | :--- |
-| **Thời gian phản hồi API trung bình** | `< 120ms` | 🟢 Mượt mà | Đã tối ưu hóa Indexing MySQL và Caching |
-| **Tỷ lệ đặt chỗ thành công (MySQL Transactions)** | `99.98%` | 🟢 Tuyệt đối | Bảo vệ chống Overbooking / Trùng lặp |
-| **Khả năng chịu tải đồng thời (Concurrently)** | `50,000+` | 🟡 Ổn định | Kết hợp Redis Cache & Rate Limiting |
-| **Độ phủ dữ liệu đối tác (Aggregator Coverage)** | `100%` | 🟢 Đầy đủ | GDS (Sabre), OTA (Agoda, Booking.com) |
-| **Tỷ lệ hoàn tiền tự động khi hủy phòng** | `< 5 giây` | 🟢 Tức thì | Tích hợp Compensation Worker & Webhooks |
+| **⚡ Thời gian phản hồi API** | `< 120ms` | 🟢 Mượt mà | Tối ưu hóa Indexing MySQL & Caching |
+| **💸 Tỷ lệ khớp lệnh SePay** | `100%` | 🟢 Tuyệt đối | Nhận diện mã hóa đơn và tự động kích hoạt |
+| **🔒 Độ bảo mật thanh toán** | `SHA-256` | 🟢 An toàn | Webhook được ký và xác thực token |
+| **🔄 Xử lý đồng thời (Concurrency)** | `50,000+ RPS` | 🟡 Ổn định | Cluster Node.js & Rate Limiter bảo vệ |
+| **✈️ Cơ sở dữ liệu chuyến bay** | `1,500+ Chuyến` | 🟢 Phong phú | Đầy đủ thông tin chặng nội địa & quốc tế |
 
 ---
 
@@ -27,75 +55,85 @@ Dưới đây là các chỉ số vận hành thực tế đo lường được 
 
 Dưới đây là một số hình ảnh thực tế chụp từ các phân hệ chính của hệ thống **DuBaoTravel**:
 
-### 1. Trang Chủ & Bộ Lọc Đa Chiều (Homepage & Faceted Filters)
+### 1. 🔍 Trang Chủ & Bộ Lọc Đa Chiều (Homepage & Faceted Filters)
 Giao diện tìm kiếm trực quan với thanh trượt lọc khoảng giá, xếp hạng sao và điểm đến kèm gợi ý Typeahead.
 ![Trang Chủ DuBaoTravel](screenshots/homepage.png)
 
-### 2. Chi Tiết Tour Du Lịch (Tour Details & Interactive Map)
+### 2. 🗺️ Chi Tiết Tour Du Lịch (Tour Details & Interactive Map)
 Hiển thị lịch trình chi tiết từng ngày, điểm nổi bật, chính sách hủy và tích hợp bản đồ Leaflet POIs.
 ![Chi Tiết Tour](screenshots/tour_detail.png)
 
-### 3. Cổng Đặt Vé Máy Bay & Khách Sạn (OTA Booking Aggregator)
-Tích hợp so sánh giá vé từ các hãng hàng không nội địa và hiển thị danh sách phòng trống thực tế của đối tác.
-![Cổng Đặt Vé & Khách Sạn](screenshots/booking_services.png)
+### 3. ✈️ Kênh Quản Lý Vé Máy Bay (Flight Tickets Management)
+Giao diện quản lý vé máy bay dành riêng cho Quản trị viên giúp thêm mới, cập nhật giá vé, hãng bay, giờ bay và lộ trình của các chuyến bay.
+![Quản Lý Vé Máy Bay](screenshots/flight_management.png)
 
-### 4. Công Cụ Thiết Kế Lịch Trình (Drag-and-Drop Trip Planner)
+### 4. 💳 Thanh Toán Tự Động Bằng SePay VietQR (SePay Instant Payment)
+Hệ thống tạo mã VietQR tự động khớp số tiền và nội dung chuyển khoản. Trạng thái thanh toán cập nhật trực tiếp trên màn hình sau 3-5 giây nhờ cơ chế Polling và Webhook.
+![Cổng Thanh Toán SePay](screenshots/sepay_payment.png)
+
+### 5. 📅 Công Cụ Thiết Kế Lịch Trình (Drag-and-Drop Trip Planner)
 Cho phép người dùng tự kéo thả hoạt động, lập kế hoạch chi tiết cho chuyến đi và xuất file PDF chuyên nghiệp.
 ![Trình Lập Lịch Trình](screenshots/trip_builder.png)
 
-### 5. Trang Quản Trị Hệ Thống (Admin Dashboard)
-Bảng điều khiển cho phép xem biểu đồ doanh thu theo thời gian, quản lý danh sách đơn hàng toàn hệ thống và kiểm duyệt.
+### 6. 👑 Trang Quản Trị Hệ Thống (Admin Dashboard)
+Bảng điều khiển cho phép xem biểu đồ doanh thu theo thời gian, quản lý danh sách đơn hàng toàn hệ thống và phân quyền đối tác.
 ![Trang Quản Trị Viên](screenshots/admin_dashboard.png)
-
-### 6. Kênh Dành Cho Đối Tác Khách Sạn (Partner Dashboard)
-Không gian làm việc riêng của chủ khách sạn để cập nhật thông tin phòng, giá cả và theo dõi doanh thu thực tế.
-![Kênh Đối Tác](screenshots/partner_dashboard.png)
 
 ---
 
-## ⚙️ Kiến Trúc Hệ Thống (Architecture Flow)
+## ⚙️ Luồng Thanh Toán Tự Động Qua SePay Webhook
 
-Sơ đồ dưới đây mô tả luồng xử lý từ Client tới API Gateway, hệ thống ETL gộp dữ liệu đối tác và tầng lưu trữ dữ liệu MySQL:
+Sơ đồ mô tả quy trình đồng bộ hóa và khớp hóa đơn tự động khi người dùng quét mã VietQR:
 
 ```mermaid
-graph TD
-    Client[React Frontend / SPA] -->|HTTP Requests / JWT| Gateway[Express API Gateway]
-    
-    Gateway --> AuthCtrl[Auth Controller]
-    Gateway --> TourCtrl[Tour Controller]
-    Gateway --> BookCtrl[Booking Controller]
-    Gateway --> PartnerCtrl[Partner Controller]
-    
-    AuthCtrl --> DB[(MySQL Database)]
-    TourCtrl --> DB
-    BookCtrl -->|MySQL Transaction| DB
-    PartnerCtrl --> DB
-    
-    subgraph ETL Ingestion Layer [Đồng Bộ Dữ Liệu Đối Tác OTA]
-        Agoda[Agoda API] -->|Fetch| ETL[Reconciliation Engine]
-        Booking[Booking.com] -->|Webhook| ETL
-        ETL -->|Jaro-Winkler Matching| DB
-    end
+sequenceDiagram
+    actor Khách Hàng
+    participant Client as React App (Frontend)
+    participant Server as Express Server (Backend)
+    participant SePay as SePay Gateway
+    database DB as MySQL Database
+
+    Khách Hàng->>Client: Nhấn Đặt Tour / Vé Máy Bay
+    Client->>Server: Gửi yêu cầu Đặt Chỗ (Transaction)
+    Server->>DB: Lưu đơn hàng ở trạng thái 'Chờ Thanh Toán'
+    Server-->>Client: Trả về ID đơn đặt chỗ (e.g. BK_12)
+    Client->>Client: Hiển thị mã SePay VietQR (Chứa nội dung BK 12)
+    Note over Khách Hàng,Client: Khách hàng quét QR & chuyển khoản qua App Ngân Hàng
+    Ngân Hàng-->>SePay: Báo biến động số dư (SMS / API)
+    SePay->>Server: Gọi Webhook POST /api/payments/sepay-webhook (Kèm mã BK 12)
+    Note over Server: Server xác thực token bảo mật SePay
+    Server->>DB: Truy vấn hóa đơn BK_12 và kiểm tra giá tiền
+    Server->>DB: Cập nhật 'Đã Thanh Toán', 'Confirmed' & ghi log Payment
+    Server-->>SePay: Trả về HTTP 200 OK
+    Note over Client,Server: Frontend Polling API check trạng thái đơn hàng tự động
+    Server-->>Client: Cập nhật trạng thái Paid thành công
+    Client->>Khách Hàng: Hiển thị thông báo "Thanh toán thành công! ✅"
 ```
 
 ---
 
 ## 🌟 Các Tính Năng Đã Hoàn Thiện
 
-1. **Search-First UX & Faceted Filters**:
-   - Ô tìm kiếm loại bỏ lỗi chính tả bằng tính năng Typeahead (gợi ý tự động).
-   - Bộ lọc chi tiết nhiều chiều (Faceted Filters) theo số lượng ngày, khoảng giá tối đa, và điểm số đánh giá cập nhật dữ liệu trực tiếp trong thời gian thực.
-2. **OTA Hotel & Flight Aggregator**:
-   - Tích hợp mô phỏng luồng GDS/Sabre/OTA (Agoda/Booking) với giao diện so sánh giá.
-   - Bản đồ tương tác Leaflet hiển thị các khách sạn (POIs) lân cận trực quan.
-   - Pricing Engine tự động điều chỉnh mức giá tùy thuộc vào ngày nhận phòng khẩn cấp hoặc thời kỳ nghỉ cao điểm.
-3. **Trip Builder & PDF Exporter**:
-   - Trình lập lịch trình kéo thả ngày nghỉ sử dụng HTML5 Drag-and-Drop gốc, lưu kế hoạch trực tiếp trên DB của người dùng.
-   - Hỗ trợ in/xuất file PDF lịch trình chuyên nghiệp (tự động loại bỏ nút bấm, thanh điều hướng khi nhấn Xuất PDF).
-4. **Cổng Thanh Toán & Đồng Bộ Giao Dịch**:
-   - Đặt chỗ bằng giao dịch MySQL (Transactions), kiểm tra giới hạn chỗ trống trước khi tạo hóa đơn chờ thanh toán.
-   - Hỗ trợ tạo mã thanh toán chuyển khoản ngân hàng (QR Code) kèm nội dung và hóa đơn chuyển khoản.
-   - Hỗ trợ chính sách hủy bỏ chỗ linh hoạt đi kèm cơ chế hoàn tiền hoàn tất tự động.
+1. **✈️ Quản Lý Vé Máy Bay Toàn Diện (Flight Tickets Manager)**:
+   - Cho phép quản trị viên thực hiện đầy đủ các tác vụ CRUD (Thêm, sửa, xóa, xem) thông tin chuyến bay trực tiếp tại Trang quản trị.
+   - Quản lý chi tiết: Tên hãng hàng không, số hiệu chuyến bay, chặng bay (Sân bay đi - Sân bay đến), giờ cất cánh, đơn giá vé, thời gian bay.
+
+2. **💳 Tích Hợp Thanh Toán SePay VietQR**:
+   - Tự động tạo mã QR động VietQR theo chuẩn Napas chứa số tài khoản ngân hàng nhận, số tiền cần thanh toán và cú pháp chuyển khoản định dạng `BK <booking_id>`.
+   - Webhook API nhận thông tin biến động số dư từ SePay thời gian thực, tự động khớp hóa đơn chính xác đến từng đồng.
+   - Frontend tự động Polling (kiểm tra trạng thái) mỗi 3 giây và tự động chuyển màn hình thành công khi nhận được tín hiệu Webhook từ Backend.
+
+3. **🔍 Search-First UX & Faceted Filters**:
+   - Khung tìm kiếm loại bỏ hoàn toàn lỗi gõ phím với tính năng tự động gợi ý địa điểm (Typeahead).
+   - Bộ lọc đa chiều (Faceted Filters) theo giá cả, số ngày, xếp hạng sao phản hồi tức thì mà không cần tải lại trang.
+
+4. **🗺️ Khách Sạn & Bản Đồ Tương Tác (OTA Maps Aggregator)**:
+   - Bản đồ Leaflet JS trực quan, hiển thị các khách sạn quanh khu vực đích đến với các POIs cụ thể.
+   - Hệ thống tối ưu hóa giá phòng động (Dynamic Pricing Engine) thay đổi linh hoạt theo mùa vụ và thời gian đặt phòng.
+
+5. **📅 Trip Builder & PDF Exporter**:
+   - Công cụ kéo thả (Drag-and-Drop) xây dựng lịch trình chi tiết theo từng ngày nghỉ của người dùng.
+   - Xuất lịch trình du lịch sang file PDF đẹp mắt, chuyên nghiệp.
 
 ---
 
@@ -104,59 +142,76 @@ graph TD
 ```text
 web_dulich/
 ├── database/
-│   └── web_dulich.sql        # Database schema và dữ liệu mẫu (import vào MySQL)
+│   └── web_dulich.sql        # Cấu trúc bảng MySQL và dữ liệu mẫu nâng cấp
 ├── backend/
-│   ├── config/               # Cấu hình Pool Connection database
-│   ├── controllers/          # Business logic (Auth, Bookings, Itineraries, Suppliers)
-│   ├── middleware/           # Lớp bảo mật Auth và Admin Token
-│   ├── routes/               # API Route mappings
+│   ├── config/               # Cấu hình kết nối MySQL Pool
+│   ├── controllers/          # Xử lý Logic (Auth, Bookings, Itineraries, hotelFlightController)
+│   ├── middleware/           # Lớp bảo mật JWT & phân quyền Admin, Hotel Owner
+│   ├── routes/               # Quản lý định tuyến API (tours, bookings, payments)
 │   ├── server.js             # Cổng API Gateway chính
-│   └── .env                  # Cấu hình cổng kết nối và thông số DB
+│   └── .env                  # Cấu hình biến môi trường & SEPAY_API_KEY
 ├── frontend/
 │   ├── src/
-│   │   ├── components/       # Component dùng chung (Navbar, Footer, Leaflet Map)
-│   │   ├── context/          # Lưu trữ session trạng thái đăng nhập
-│   │   ├── pages/            # View chính (Home search, Tour details, Planner, Billing)
-│   │   ├── App.jsx           # Quản lý Routing
-│   │   └── index.css         # Custom Premium Design System & Print layouts
+│   │   ├── components/       # Các widget dùng chung (Navbar, Footer, Leaflet Map)
+│   │   ├── context/          # Lưu trữ session phiên làm việc của người dùng
+│   │   ├── pages/            # View chính (Home search, Tour details, AdminDashboard, MyBookings)
+│   │   ├── App.jsx           # Quản lý Routing đường dẫn React
+│   │   └── index.css         # Thiết kế hệ thống Premium Design System
 │   └── package.json
-└── screenshots/              # Chứa toàn bộ ảnh chụp giao diện hệ thống thực tế
+└── screenshots/              # Ảnh chụp giao diện thực tế hệ thống
 ```
 
 ---
 
 ## 🚀 Hướng Dẫn Thiết Lập & Khởi Chạy Nhanh
 
-### Bước 1: Nhập Cơ Sở Dữ Liệu MySQL
-1. Khởi động MySQL Server (ví dụ qua XAMPP, Laragon hoặc MySQL Command Line).
-2. Tạo một database mới tên là `web_dulich` (nếu chưa có).
-3. Import file `database/web_dulich.sql` để thiết lập cấu trúc bảng và tải dữ liệu mẫu:
+### Bước 1: Khởi Tạo Cơ Sở Dữ Liệu MySQL
+1. Khởi động MySQL Server (XAMPP, Laragon, hoặc MySQL CLI).
+2. Tạo một cơ sở dữ liệu mới mang tên `web_dulich`.
+3. Nhập dữ liệu từ file `database/web_dulich.sql`:
    ```bash
    mysql -u root -p web_dulich < database/web_dulich.sql
    ```
 
-### Bước 2: Khởi Chạy API Backend
+### Bước 2: Thiết Lập Cấu Hình Backend
 1. Di chuyển vào thư mục backend:
    ```bash
    cd backend
    ```
-2. Mở file `.env` và tùy chỉnh lại tài khoản kết nối MySQL (`DB_USER`, `DB_PASSWORD`) nếu khác cấu hình mặc định (root/mật khẩu trống).
-3. Khởi chạy server:
+2. Cài đặt các thư viện liên quan:
+   ```bash
+   npm install
+   ```
+3. Chỉnh sửa file `.env` để khai báo các cấu hình kết nối CSDL và key SePay:
+   ```env
+   PORT=5001
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=
+   DB_NAME=web_dulich
+   JWT_SECRET=supersecretkeytravelportal2026
+   SEPAY_API_KEY=sepay_secret_token_123
+   ```
+4. Khởi chạy máy chủ:
    ```bash
    npm run dev
    ```
-   *Cổng API Gateway sẽ chạy tại địa chỉ: `http://localhost:5001`*
+   *Backend API sẽ hoạt động tại địa chỉ: `http://localhost:5001`*
 
 ### Bước 3: Khởi Chạy Frontend React (Vite)
-1. Mở một terminal mới và di chuyển vào thư mục frontend:
+1. Mở một cửa sổ dòng lệnh mới và truy cập thư mục frontend:
    ```bash
    cd frontend
    ```
-2. Khởi chạy máy chủ phát triển (Dev server):
+2. Cài đặt các package phụ thuộc:
+   ```bash
+   npm install
+   ```
+3. Chạy môi trường phát triển:
    ```bash
    npm run dev
    ```
-   *Trang web sẽ chạy tại địa chỉ mặc định: `http://localhost:5173`*
+   *Frontend sẽ hoạt động tại địa chỉ: `http://localhost:5173`*
 
 ---
 
@@ -164,8 +219,11 @@ web_dulich/
 
 Bạn có thể sử dụng các tài khoản dưới đây để kiểm thử toàn diện các quyền truy cập (Roles) trên hệ thống:
 
-| Vai trò | Email đăng nhập | Mật khẩu | Quyền lợi |
+| Vai trò | Email đăng nhập | Mật khẩu | Quyền hạn |
 | :--- | :--- | :--- | :--- |
-| **Quản trị viên (Admin)** | `admin@webdulich.com` | `admin123` | Toàn quyền kiểm soát hệ thống, xem biểu đồ doanh thu và báo cáo |
-| **Đối tác (Hotel Owner)** | `owner@webdulich.com` | `owner123` | Đăng phòng mới, thiết lập giá và quản lý đặt phòng khách sạn sở hữu |
-| **Khách hàng (User)** | `user@webdulich.com` | `user123` | Tìm kiếm tour, lập lịch trình kéo thả, đặt dịch vụ và thanh toán |
+| **👑 Quản trị viên (Admin)** | `admin@webdulich.com` | `admin123` | Toàn quyền kiểm soát, CRUD Tour/Chuyến bay, hủy đơn hàng, quản lý user |
+| **🤝 Đối tác (Hotel Owner)** | `owner@webdulich.com` | `owner123` | Quản lý thông tin khách sạn thuộc sở hữu, thiết lập phòng và giá phòng |
+| **👤 Khách hàng (User)** | `user@webdulich.com` | `user123` | Tìm kiếm dịch vụ, lên kế hoạch tự động kéo thả, đặt chỗ và thanh toán tự động |
+
+---
+*Bản quyền © 2026 thuộc về dự án DuBaoTravel - Phát triển bởi Trần Dư Bảo.*

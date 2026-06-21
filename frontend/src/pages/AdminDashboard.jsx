@@ -15,6 +15,7 @@ export const AdminDashboard = () => {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [tours, setTours] = useState([]);
+  const [flights, setFlights] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +42,19 @@ export const AdminDashboard = () => {
     max_participants: 20,
     highlights: '',
     itinerary_preview: ''
+  });
+
+  // Flight Form State (for Create/Edit)
+  const [showFlightModal, setShowFlightModal] = useState(false);
+  const [editingFlight, setEditingFlight] = useState(null);
+  const [flightFormData, setFlightFormData] = useState({
+    airline: '',
+    flight_number: '',
+    departure_airport: '',
+    arrival_airport: '',
+    departure_time: '',
+    price: 0,
+    duration: ''
   });
 
   const [formLoading, setFormLoading] = useState(false);
@@ -77,7 +91,7 @@ export const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      await Promise.all([fetchTours(), fetchAllBookings(), fetchUsers()]);
+      await Promise.all([fetchTours(), fetchAllBookings(), fetchUsers(), fetchFlights()]);
     } catch (err) {
       console.error('Error loading admin dashboard data:', err);
     } finally {
@@ -94,6 +108,134 @@ export const AdminDashboard = () => {
       }
     } catch (err) {
       console.error('Error fetching tours:', err);
+    }
+  };
+
+  const fetchFlights = async () => {
+    try {
+      const res = await fetch('http://localhost:5001/api/suppliers/flights');
+      if (res.ok) {
+        const data = await res.json();
+        setFlights(data);
+      }
+    } catch (err) {
+      console.error('Error fetching flights:', err);
+    }
+  };
+
+  // Flight CRUD Actions
+  const handleOpenFlightCreateModal = () => {
+    setEditingFlight(null);
+    setFlightFormData({
+      airline: '',
+      flight_number: '',
+      departure_airport: '',
+      arrival_airport: '',
+      departure_time: '',
+      price: 0,
+      duration: ''
+    });
+    setShowFlightModal(true);
+  };
+
+  const handleOpenFlightEditModal = (flight) => {
+    setEditingFlight(flight);
+    let formattedDateTime = '';
+    if (flight.departure_time) {
+      const date = new Date(flight.departure_time);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localISOTime = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+      formattedDateTime = localISOTime;
+    }
+    setFlightFormData({
+      airline: flight.airline || '',
+      flight_number: flight.flight_number || '',
+      departure_airport: flight.departure_airport || '',
+      arrival_airport: flight.arrival_airport || '',
+      departure_time: formattedDateTime,
+      price: flight.price || 0,
+      duration: flight.duration || ''
+    });
+    setShowFlightModal(true);
+  };
+
+  const handleFlightFormChange = (e) => {
+    const { name, value } = e.target;
+    setFlightFormData(prev => ({
+      ...prev,
+      [name]: name === 'price' ? Number(value) : value
+    }));
+  };
+
+  const handleSaveFlight = async (e) => {
+    e.preventDefault();
+    setFormLoading(true);
+
+    const url = editingFlight 
+      ? `http://localhost:5001/api/suppliers/flights/${editingFlight.id}` 
+      : 'http://localhost:5001/api/suppliers/flights';
+    const method = editingFlight ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(flightFormData)
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        await showAlert(
+          lang === 'vi' 
+            ? (editingFlight ? 'Cập nhật chuyến bay thành công!' : 'Đã tạo chuyến bay mới thành công!') 
+            : (editingFlight ? 'Flight updated successfully!' : 'New flight created successfully!'),
+          'success',
+          lang === 'vi' ? 'Thành công' : 'Success'
+        );
+        setShowFlightModal(false);
+        fetchFlights();
+      } else {
+        await showAlert(data.message || 'Lỗi khi lưu thông tin chuyến bay', 'error', lang === 'vi' ? 'Lỗi' : 'Error');
+      }
+    } catch (err) {
+      await showAlert(lang === 'vi' ? 'Lỗi kết nối máy chủ' : 'Server connection error', 'error', lang === 'vi' ? 'Lỗi' : 'Error');
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteFlight = async (flightId, flightNum) => {
+    const confirmMsg = lang === 'vi'
+      ? `Bạn có chắc chắn muốn xóa chuyến bay số hiệu "${flightNum}" không? Hành động này không thể hoàn tác.`
+      : `Are you sure you want to delete flight "${flightNum}"? This action cannot be undone.`;
+
+    const isConfirmed = await showConfirm(
+      confirmMsg,
+      lang === 'vi' ? 'Xác nhận xóa' : 'Confirm Delete',
+      'danger'
+    );
+    if (!isConfirmed) return;
+
+    try {
+      const res = await fetch(`http://localhost:5001/api/suppliers/flights/${flightId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        await showAlert(lang === 'vi' ? 'Đã xóa chuyến bay thành công!' : 'Flight deleted successfully!', 'success', lang === 'vi' ? 'Đã xóa' : 'Deleted');
+        fetchFlights();
+      } else {
+        const data = await res.json();
+        await showAlert(data.message || 'Lỗi khi xóa chuyến bay', 'error', lang === 'vi' ? 'Lỗi' : 'Error');
+      }
+    } catch (err) {
+      await showAlert(lang === 'vi' ? 'Lỗi kết nối máy chủ' : 'Server connection error', 'error', lang === 'vi' ? 'Lỗi' : 'Error');
     }
   };
 
@@ -624,6 +766,18 @@ export const AdminDashboard = () => {
           {t.tabAccounts}
         </button>
         <button 
+          onClick={() => setActiveTab('flights')} 
+          className="btn" 
+          style={{ 
+            backgroundColor: activeTab === 'flights' ? 'var(--primary-base)' : 'transparent', 
+            color: activeTab === 'flights' ? 'white' : 'var(--text-main)',
+            padding: '8px 16px',
+            fontSize: '0.9rem'
+          }}
+        >
+          {lang === 'vi' ? 'Quản Lý Chuyến Bay' : 'Flight Tickets'}
+        </button>
+        <button 
           onClick={() => setActiveTab('revenue')} 
           className="btn" 
           style={{ 
@@ -814,6 +968,72 @@ export const AdminDashboard = () => {
                             <Edit2 size={12} /> {t.edit}
                           </button>
                           <button onClick={() => handleDeleteTour(tour.id, tour.title)} className="btn btn-danger" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>
+                            <Trash2 size={12} /> {t.delete}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: FLIGHTS MANAGEMENT */}
+      {activeTab === 'flights' && (
+        <div className="glass-card animate-fade-in" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <h3 style={{ fontSize: '1.25rem' }}>{lang === 'vi' ? 'Danh sách Chuyến Bay Hệ Thống' : 'System Flight Database'}</h3>
+            <button onClick={handleOpenFlightCreateModal} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+              <Plus size={16} />
+              {lang === 'vi' ? 'Thêm Chuyến Bay Mới' : 'Create Flight'}
+            </button>
+          </div>
+
+          {flights.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
+              <AlertCircle size={32} style={{ marginBottom: '10px' }} />
+              <p>{lang === 'vi' ? 'Không có chuyến bay nào trong cơ sở dữ liệu.' : 'No flights found in database.'}</p>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                    <th style={{ padding: '12px 8px' }}>ID</th>
+                    <th style={{ padding: '12px 8px' }}>{lang === 'vi' ? 'Hãng Hàng Không' : 'Airline'}</th>
+                    <th style={{ padding: '12px 8px' }}>{lang === 'vi' ? 'Số Hiệu' : 'Flight Number'}</th>
+                    <th style={{ padding: '12px 8px' }}>{lang === 'vi' ? 'Tuyến Bay' : 'Route'}</th>
+                    <th style={{ padding: '12px 8px' }}>{lang === 'vi' ? 'Giờ Khởi Hành' : 'Departure Time'}</th>
+                    <th style={{ padding: '12px 8px' }}>{lang === 'vi' ? 'Thời Lượng' : 'Duration'}</th>
+                    <th style={{ padding: '12px 8px' }}>{lang === 'vi' ? 'Giá Vé' : 'Price'}</th>
+                    <th style={{ padding: '12px 8px' }}>{t.colActions}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {flights.map((flight) => (
+                    <tr key={flight.id} style={{ borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem' }}>
+                      <td style={{ padding: '12px 8px', fontWeight: 600, color: 'var(--text-muted)' }}>#{flight.id}</td>
+                      <td style={{ padding: '12px 8px', fontWeight: 600, color: 'var(--primary-base)' }}>{flight.airline}</td>
+                      <td style={{ padding: '12px 8px', fontWeight: 700 }}>{flight.flight_number}</td>
+                      <td style={{ padding: '12px 8px' }}>
+                        <span style={{ fontWeight: 500 }}>{flight.departure_airport}</span>
+                        <span style={{ margin: '0 8px', color: 'var(--text-muted)' }}>&rarr;</span>
+                        <span style={{ fontWeight: 500 }}>{flight.arrival_airport}</span>
+                      </td>
+                      <td style={{ padding: '12px 8px' }}>{new Date(flight.departure_time).toLocaleString()}</td>
+                      <td style={{ padding: '12px 8px' }}>{flight.duration}</td>
+                      <td style={{ padding: '12px 8px', fontWeight: 700, color: 'var(--secondary-base)' }}>
+                        {parseInt(flight.price).toLocaleString()}đ
+                      </td>
+                      <td style={{ padding: '12px 8px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => handleOpenFlightEditModal(flight)} className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.75rem', border: '1px solid var(--primary-base)' }}>
+                            <Edit2 size={12} /> {t.edit}
+                          </button>
+                          <button onClick={() => handleDeleteFlight(flight.id, flight.flight_number)} className="btn btn-danger" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>
                             <Trash2 size={12} /> {t.delete}
                           </button>
                         </div>
@@ -1405,6 +1625,137 @@ export const AdminDashboard = () => {
                 <button 
                   type="button" 
                   onClick={() => setShowTourModal(false)} 
+                  className="btn btn-outline"
+                  style={{ padding: '8px 16px', fontSize: '0.9rem' }}
+                >
+                  {t.btnCancel}
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={formLoading}
+                  className="btn btn-primary"
+                  style={{ padding: '8px 24px', fontSize: '0.9rem' }}
+                >
+                  {formLoading ? (lang === 'vi' ? 'Đang lưu...' : 'Saving...') : t.btnSave}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE & EDIT FLIGHT MODAL */}
+      {showFlightModal && (
+        <div className="modal-overlay">
+          <div className="modal-content glass-card animate-fade-in" style={{ maxWidth: '650px', width: '95%', padding: '24px', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}>
+            <button 
+              onClick={() => setShowFlightModal(false)}
+              style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-muted)' }}
+            >
+              &times;
+            </button>
+
+            <h3 style={{ textAlign: 'center', marginBottom: '20px', letterSpacing: '0.5px' }}>
+              {editingFlight ? (lang === 'vi' ? 'CẬP NHẬT THÔNG TIN CHUYẾN BAY' : 'EDIT FLIGHT DATA') : (lang === 'vi' ? 'TẠO CHUYẾN BAY MỚI' : 'CREATE NEW FLIGHT')}
+            </h3>
+
+            <form onSubmit={handleSaveFlight} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Hãng Hàng Không *' : 'Airline *'}</label>
+                <input 
+                  type="text" 
+                  name="airline"
+                  required
+                  placeholder="e.g. Vietnam Airlines"
+                  value={flightFormData.airline}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Số Hiệu Chuyến Bay *' : 'Flight Number *'}</label>
+                <input 
+                  type="text" 
+                  name="flight_number"
+                  required
+                  placeholder="e.g. VN213"
+                  value={flightFormData.flight_number}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Sân Bay Đi *' : 'Departure Airport *'}</label>
+                <input 
+                  type="text" 
+                  name="departure_airport"
+                  required
+                  placeholder="e.g. HAN (Hà Nội)"
+                  value={flightFormData.departure_airport}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Sân Bay Đến *' : 'Arrival Airport *'}</label>
+                <input 
+                  type="text" 
+                  name="arrival_airport"
+                  required
+                  placeholder="e.g. SGN (TP. HCM)"
+                  value={flightFormData.arrival_airport}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Thời Gian Khởi Hành *' : 'Departure Time *'}</label>
+                <input 
+                  type="datetime-local" 
+                  name="departure_time"
+                  required
+                  value={flightFormData.departure_time}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Thời Gian Bay *' : 'Flight Duration *'}</label>
+                <input 
+                  type="text" 
+                  name="duration"
+                  required
+                  placeholder="e.g. 2h 10m"
+                  value={flightFormData.duration}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Đơn Giá Vé (VND) *' : 'Ticket Price (VND) *'}</label>
+                <input 
+                  type="number" 
+                  name="price"
+                  required
+                  min="0"
+                  value={flightFormData.price}
+                  onChange={handleFlightFormChange}
+                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                />
+              </div>
+
+              <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowFlightModal(false)} 
                   className="btn btn-outline"
                   style={{ padding: '8px 16px', fontSize: '0.9rem' }}
                 >

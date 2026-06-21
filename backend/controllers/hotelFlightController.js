@@ -182,8 +182,66 @@ const getFlights = async (req, res) => {
   }
 };
 
+const createFlight = async (req, res) => {
+  try {
+    const { airline, flight_number, departure_airport, arrival_airport, departure_time, price, duration } = req.body;
+    if (!airline || !flight_number || !departure_airport || !arrival_airport || !departure_time || !price || !duration) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin chuyến bay' });
+    }
+    const [result] = await db.query(
+      `INSERT INTO flights (airline, flight_number, departure_airport, arrival_airport, departure_time, price, duration)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [airline, flight_number, departure_airport, arrival_airport, departure_time, parseFloat(price), duration]
+    );
+    res.status(201).json({ id: result.insertId, airline, flight_number, departure_airport, arrival_airport, departure_time, price, duration });
+  } catch (error) {
+    console.error('createFlight error:', error);
+    res.status(500).json({ message: 'Lỗi khi tạo chuyến bay mới' });
+  }
+};
+
+const updateFlight = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { airline, flight_number, departure_airport, arrival_airport, departure_time, price, duration } = req.body;
+    if (!airline || !flight_number || !departure_airport || !arrival_airport || !departure_time || !price || !duration) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin chuyến bay' });
+    }
+    const [result] = await db.query(
+      `UPDATE flights 
+       SET airline = ?, flight_number = ?, departure_airport = ?, arrival_airport = ?, departure_time = ?, price = ?, duration = ?
+       WHERE id = ?`,
+      [airline, flight_number, departure_airport, arrival_airport, departure_time, parseFloat(price), duration, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy chuyến bay để cập nhật' });
+    }
+    res.json({ id, airline, flight_number, departure_airport, arrival_airport, departure_time, price, duration });
+  } catch (error) {
+    console.error('updateFlight error:', error);
+    res.status(500).json({ message: 'Lỗi khi cập nhật chuyến bay' });
+  }
+};
+
+const deleteFlight = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await db.query('DELETE FROM flights WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy chuyến bay để xóa' });
+    }
+    res.json({ message: 'Đã xóa chuyến bay thành công!' });
+  } catch (error) {
+    console.error('deleteFlight error:', error);
+    res.status(500).json({ message: 'Lỗi khi xóa chuyến bay' });
+  }
+};
+
 module.exports = {
   getHotels,
   getHotelById,
-  getFlights
+  getFlights,
+  createFlight,
+  updateFlight,
+  deleteFlight
 };

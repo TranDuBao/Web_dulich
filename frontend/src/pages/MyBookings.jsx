@@ -31,6 +31,38 @@ export const MyBookings = () => {
     }
   }, [user]);
 
+  // SePay automated payment webhook status checker
+  useEffect(() => {
+    let intervalId;
+    if (showPayModal && activeBooking && activeBooking.payment_status !== 'paid') {
+      intervalId = setInterval(async () => {
+        try {
+          const res = await fetch(`http://localhost:5001/api/bookings/${activeBooking.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.payment_status === 'paid') {
+              setPaySuccessMsg(lang === 'vi' ? 'Thanh toán thành công! Hệ thống đã xác nhận hóa đơn của bạn. ✅' : 'Payment successful! System confirmed your invoice. ✅');
+              clearInterval(intervalId);
+              setTimeout(() => {
+                setShowPayModal(false);
+                fetchBookings();
+              }, 2000);
+            }
+          }
+        } catch (err) {
+          console.error('Error polling booking status:', err);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [showPayModal, activeBooking, token, lang]);
+
   const fetchBookings = async () => {
     setLoading(true);
     try {
@@ -291,16 +323,23 @@ export const MyBookings = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '20px', alignItems: 'center' }}>
                 {/* QR Code Column */}
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>{t.qrTitle}</span>
-                  {/* Real MBBank QR image payload mock generator URL */}
+                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>
+                    {payMethod === 'BANK_TRANSFER' ? 'QUÉT MÃ VIETQR TỰ ĐỘNG' : t.qrTitle}
+                  </span>
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                      `2ef1b93f-c30f-4889-a292-1262dcfb8ef4|BANK_MB|1234567890|${activeBooking.total_price}|BK_${activeBooking.id}`
-                    )}`} 
+                    src={
+                      payMethod === 'BANK_TRANSFER'
+                        ? `https://qr.sepay.vn/img?acc=1234567890&bank=MBBank&amount=${activeBooking.total_price}&des=BK%20${activeBooking.id}`
+                        : `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                            `2ef1b93f-c30f-4889-a292-1262dcfb8ef4|BANK_MB|1234567890|${activeBooking.total_price}|BK_${activeBooking.id}`
+                          )}`
+                    } 
                     alt="Payment QR Code" 
                     style={{ width: '180px', height: '180px', border: '1px solid var(--border-color)', padding: '6px', borderRadius: '8px', backgroundColor: 'white' }} 
                   />
-                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '8px' }}>{t.qrDesc}</p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                    {payMethod === 'BANK_TRANSFER' ? 'Hệ thống tự động duyệt sau 3-5 giây chuyển khoản.' : t.qrDesc}
+                  </p>
                 </div>
 
                 {/* Account Details Column */}
@@ -312,9 +351,9 @@ export const MyBookings = () => {
                       onChange={(e) => setPayMethod(e.target.value)}
                       style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', backgroundColor: 'white', marginTop: '4px' }}
                     >
-                      <option value="VNPAY">VNPay QR</option>
-                      <option value="MOMO">Momo Wallet</option>
-                      <option value="BANK_TRANSFER">Chuyển khoản Ngân hàng (MB Bank)</option>
+                      <option value="BANK_TRANSFER">Chuyển khoản tự động (SePay VietQR)</option>
+                      <option value="VNPAY">VNPay QR Gateway</option>
+                      <option value="MOMO">Momo E-Wallet</option>
                     </select>
                   </div>
 

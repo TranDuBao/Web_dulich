@@ -23,6 +23,7 @@ app.use('/api/itineraries', require('./routes/itineraries'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/partners', require('./routes/partners'));
+app.use('/api/payments', require('./routes/payments'));
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
