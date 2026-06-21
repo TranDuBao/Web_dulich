@@ -227,4 +227,4 @@ Bạn có thể sử dụng các tài khoản dưới đây để kiểm thử t
 | **👤 Khách hàng (User)** | `user@webdulich.com` | `user123` | Tìm kiếm dịch vụ, lên kế hoạch tự động kéo thả, đặt chỗ và thanh toán tự động |
 
 ---
-*Bản quyền © 2026 thuộc về dự án DuBaoTravel - Phát triển bởi Trần Dư Bảo.*
+*Bản quyền © 2026 thuộc về dự án DuBaoTravel - Phát triển bởi Trần Dũ Bảo.*
