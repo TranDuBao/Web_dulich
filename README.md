@@ -87,19 +87,20 @@ Sơ đồ mô tả quy trình đồng bộ hóa và khớp hóa đơn tự độ
 
 ```mermaid
 sequenceDiagram
-    actor Khách Hàng
+    actor Customer as Khách Hàng
     participant Client as React App (Frontend)
     participant Server as Express Server (Backend)
     participant SePay as SePay Gateway
+    participant Bank as Ngân Hàng
     database DB as MySQL Database
 
-    Khách Hàng->>Client: Nhấn Đặt Tour / Vé Máy Bay
+    Customer->>Client: Nhấn Đặt Tour / Vé Máy Bay
     Client->>Server: Gửi yêu cầu Đặt Chỗ (Transaction)
     Server->>DB: Lưu đơn hàng ở trạng thái 'Chờ Thanh Toán'
     Server-->>Client: Trả về ID đơn đặt chỗ (e.g. BK_12)
     Client->>Client: Hiển thị mã SePay VietQR (Chứa nội dung BK 12)
-    Note over Khách Hàng,Client: Khách hàng quét QR & chuyển khoản qua App Ngân Hàng
-    Ngân Hàng-->>SePay: Báo biến động số dư (SMS / API)
+    Note over Customer,Client: Khách hàng quét QR & chuyển khoản qua App Ngân Hàng
+    Bank-->>SePay: Báo biến động số dư (SMS / API)
     SePay->>Server: Gọi Webhook POST /api/payments/sepay-webhook (Kèm mã BK 12)
     Note over Server: Server xác thực token bảo mật SePay
     Server->>DB: Truy vấn hóa đơn BK_12 và kiểm tra giá tiền
@@ -107,7 +108,7 @@ sequenceDiagram
     Server-->>SePay: Trả về HTTP 200 OK
     Note over Client,Server: Frontend Polling API check trạng thái đơn hàng tự động
     Server-->>Client: Cập nhật trạng thái Paid thành công
-    Client->>Khách Hàng: Hiển thị thông báo "Thanh toán thành công! ✅"
+    Client->>Customer: Hiển thị thông báo "Thanh toán thành công! ✅"
 ```
 
 ---
