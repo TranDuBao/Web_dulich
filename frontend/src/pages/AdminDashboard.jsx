@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const { showAlert, showConfirm } = useNotification();
   const navigate = useNavigate();
 
@@ -56,7 +56,7 @@ export const AdminDashboard = () => {
 
   // Protection Check: Redirect if not admin
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
+    if (!authLoading && (!user || user.role !== 'admin')) {
       showAlert(
         lang === 'vi' ? 'Bạn không có quyền truy cập trang quản trị!' : 'Unauthorized access to admin panel!',
         'error',
@@ -64,15 +64,15 @@ export const AdminDashboard = () => {
       );
       navigate('/');
     }
-  }, [user, loading]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (user && user.role === 'admin') {
       loadDashboardData();
-    } else {
+    } else if (!authLoading) {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadDashboardData = async () => {
     setLoading(true);

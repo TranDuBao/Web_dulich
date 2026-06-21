@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export const Profile = () => {
-  const { user, token, setUser } = useAuth();
+  const { user, token, loading: authLoading, setUser } = useAuth();
   const { showAlert } = useNotification();
   const navigate = useNavigate();
 
@@ -50,6 +50,7 @@ export const Profile = () => {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate('/');
       return;
@@ -58,7 +59,7 @@ export const Profile = () => {
     setPhone(user.phone || '');
     setAvatar(user.avatar_url || '');
     fetchProfileStats();
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchProfileStats = async () => {
     setLoadingStats(true);

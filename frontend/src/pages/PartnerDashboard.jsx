@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export const PartnerDashboard = () => {
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const { showAlert, showConfirm } = useNotification();
   const navigate = useNavigate();
 
@@ -69,7 +69,7 @@ export const PartnerDashboard = () => {
 
   // Protection: role must be 'hotel_owner' or 'admin'
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'hotel_owner' && user.role !== 'admin'))) {
+    if (!authLoading && (!user || (user.role !== 'hotel_owner' && user.role !== 'admin'))) {
       showAlert(
         lang === 'vi' ? 'Bạn không có quyền truy cập trang đối tác!' : 'Unauthorized access to partner portal!',
         'error',
@@ -77,15 +77,15 @@ export const PartnerDashboard = () => {
       );
       navigate('/');
     }
-  }, [user, loading]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (user && (user.role === 'hotel_owner' || user.role === 'admin')) {
       loadDashboardData();
-    } else {
+    } else if (!authLoading) {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   // Load rooms when selected hotel changes
   useEffect(() => {
