@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS hotels (
   price_per_night DECIMAL(15, 2) NOT NULL,
   star_rating INT DEFAULT 3,
   image_url VARCHAR(500),
+  images TEXT NULL,
   description TEXT,
   lat DECIMAL(10, 8),
   lng DECIMAL(11, 8),

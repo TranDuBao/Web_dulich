@@ -108,7 +108,13 @@ export const HotelDetail = () => {
 
   const getGallery = () => {
     if (!hotel) return [];
-    return [hotel.image_url, ...mockGalleryImages];
+    const mainImg = hotel.image_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+    const customGallery = Array.isArray(hotel.images) && hotel.images.length > 0 ? hotel.images : [];
+    
+    if (customGallery.length > 0) {
+      return [mainImg, ...customGallery];
+    }
+    return [mainImg, ...mockGalleryImages];
   };
 
   const handleFileChange = (e) => {
@@ -329,7 +335,7 @@ export const HotelDetail = () => {
               style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'var(--transition-smooth)' }} 
             />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(75px, 1fr))', gap: '12px' }}>
             {gallery.map((imgUrl, idx) => (
               <div 
                 key={idx} 

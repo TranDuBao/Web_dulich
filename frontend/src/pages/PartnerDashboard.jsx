@@ -37,6 +37,7 @@ export const PartnerDashboard = () => {
     price_per_night: 0,
     star_rating: 3,
     image_url: '',
+    images: [],
     description: '',
     lat: 10.0,
     lng: 100.0,
@@ -95,6 +96,49 @@ export const PartnerDashboard = () => {
       setRooms([]);
     }
   }, [selectedHotelId]);
+
+  const handleImageUpload = async (file) => {
+    if (!file) return null;
+    
+    if (file.size > 10 * 1024 * 1024) {
+      showAlert(
+        lang === 'vi' ? 'Dung lượng ảnh tối đa là 10MB!' : 'Max image size is 10MB!',
+        'warning',
+        lang === 'vi' ? 'Ảnh quá lớn' : 'File Too Large'
+      );
+      return null;
+    }
+    
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64Data = reader.result;
+          const res = await fetch('http://localhost:5001/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: base64Data })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            resolve(data.url);
+          } else {
+            const data = await res.json();
+            showAlert(data.message || 'Lỗi khi tải ảnh lên', 'error');
+            resolve(null);
+          }
+        } catch (err) {
+          console.error('Upload error:', err);
+          showAlert(lang === 'vi' ? 'Lỗi kết nối máy chủ' : 'Server connection error', 'error');
+          resolve(null);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -197,6 +241,7 @@ export const PartnerDashboard = () => {
       price_per_night: 0,
       star_rating: 3,
       image_url: '',
+      images: [],
       description: '',
       lat: 10.0,
       lng: 100.0,
@@ -213,6 +258,7 @@ export const PartnerDashboard = () => {
       price_per_night: hotel.price_per_night,
       star_rating: hotel.star_rating,
       image_url: hotel.image_url,
+      images: hotel.images || [],
       description: hotel.description,
       lat: hotel.lat,
       lng: hotel.lng,
@@ -622,7 +668,8 @@ export const PartnerDashboard = () => {
 
   return (
     <div className="container animate-fade-in" style={{ marginTop: '40px', marginBottom: '60px' }}>
-      {/* Header section */}
+      <div className="no-print">
+        {/* Header section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1237,6 +1284,7 @@ export const PartnerDashboard = () => {
           </div>
         );
       })()}
+      </div>
 
       {/* INVOICE DETAIL LIGHTBOX */}
       {selectedInvoice && (
@@ -1451,15 +1499,91 @@ export const PartnerDashboard = () => {
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Đường Dẫn Ảnh Khách Sạn' : 'Hotel Exterior Image URL'}</label>
-                <input 
-                  type="text" 
-                  name="image_url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={hotelFormData.image_url}
-                  onChange={handleHotelFormChange}
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
-                />
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Ảnh Đại Diện Khách Sạn (Ảnh bìa)' : 'Main Hotel Cover Image'}</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    name="image_url"
+                    placeholder="https://images.unsplash.com/..."
+                    value={hotelFormData.image_url}
+                    onChange={handleHotelFormChange}
+                    style={{ flex: 1, padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                  />
+                  <label className="btn btn-outline" style={{ padding: '8px 12px', fontSize: '0.8rem', cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Plus size={14} /> {lang === 'vi' ? 'Chọn file' : 'Choose file'}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setFormLoading(true);
+                          const url = await handleImageUpload(file);
+                          if (url) {
+                            setHotelFormData(prev => ({ ...prev, image_url: url }));
+                          }
+                          setFormLoading(false);
+                        }
+                      }}
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                </div>
+                {hotelFormData.image_url && (
+                  <div style={{ marginTop: '8px' }}>
+                    <img src={hotelFormData.image_url} alt="Cover Preview" style={{ width: '100px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                  </div>
+                )}
+              </div>
+
+              {/* MULTIPLE HOTEL IMAGES GALLERY */}
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Bộ Sưu Tập Ảnh Mô Tả Khách Sạn (Nhiều ảnh)' : 'Hotel Gallery Images (Multiple)'}</label>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                  {(hotelFormData.images || []).map((imgUrl, index) => (
+                    <div key={index} style={{ position: 'relative', width: '90px', height: '60px', borderRadius: '4px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                      <img src={imgUrl} alt={`Gallery ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHotelFormData(prev => ({
+                            ...prev,
+                            images: prev.images.filter((_, idx) => idx !== index)
+                          }));
+                        }}
+                        style={{ position: 'absolute', top: '2px', right: '2px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '10px' }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                  <label style={{ width: '90px', height: '60px', border: '1px dashed var(--primary-base)', borderRadius: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--primary-base)' }}>
+                    <Plus size={18} />
+                    <span style={{ fontSize: '0.65rem', fontWeight: 600 }}>Tải ảnh</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      multiple
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files);
+                        if (files.length > 0) {
+                          setFormLoading(true);
+                          const uploadedUrls = [];
+                          for (const file of files) {
+                            const url = await handleImageUpload(file);
+                            if (url) uploadedUrls.push(url);
+                          }
+                          setHotelFormData(prev => ({
+                            ...prev,
+                            images: [...(prev.images || []), ...uploadedUrls]
+                          }));
+                          setFormLoading(false);
+                        }
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
@@ -1567,15 +1691,41 @@ export const PartnerDashboard = () => {
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Đường Dẫn Ảnh Phòng' : 'Room Interior Image URL'}</label>
-                <input 
-                  type="text" 
-                  name="image_url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={roomFormData.image_url}
-                  onChange={handleRoomFormChange}
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
-                />
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{lang === 'vi' ? 'Ảnh Loại Phòng' : 'Room Type Image'}</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    name="image_url"
+                    placeholder="https://images.unsplash.com/..."
+                    value={roomFormData.image_url}
+                    onChange={handleRoomFormChange}
+                    style={{ flex: 1, padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                  />
+                  <label className="btn btn-outline" style={{ padding: '8px 12px', fontSize: '0.8rem', cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Plus size={14} /> {lang === 'vi' ? 'Chọn file' : 'Choose file'}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setFormLoading(true);
+                          const url = await handleImageUpload(file);
+                          if (url) {
+                            setRoomFormData(prev => ({ ...prev, image_url: url }));
+                          }
+                          setFormLoading(false);
+                        }
+                      }}
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                </div>
+                {roomFormData.image_url && (
+                  <div style={{ marginTop: '8px' }}>
+                    <img src={roomFormData.image_url} alt="Room Preview" style={{ width: '100px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                  </div>
+                )}
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>

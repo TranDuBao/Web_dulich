@@ -21,7 +21,7 @@ function App() {
         <Router>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navbar />
-            <div style={{ flex: 1 }} className="no-print">
+            <div style={{ flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/tours/:id" element={<TourDetail />} />

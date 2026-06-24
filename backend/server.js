@@ -3,12 +3,60 @@ const cors = require('cors');
 require('dotenv').config();
 const db = require('./config/db');
 
+const path = require('path');
+const fs = require('fs');
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Serve uploads static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Base64 upload endpoint
+app.post('/api/upload', (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ message: 'Không có dữ liệu ảnh!' });
+    }
+    
+    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return res.status(400).json({ message: 'Định dạng ảnh không hợp lệ!' });
+    }
+    
+    const type = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+    
+    let extension = 'png';
+    if (type.includes('jpeg') || type.includes('jpg')) {
+      extension = 'jpg';
+    } else if (type.includes('webp')) {
+      extension = 'webp';
+    } else if (type.includes('gif')) {
+      extension = 'gif';
+    }
+    
+    const filename = `upload_${Date.now()}_${Math.round(Math.random() * 1E9)}.${extension}`;
+    const uploadPath = path.join(__dirname, 'uploads', filename);
+    
+    if (!fs.existsSync(path.join(__dirname, 'uploads'))) {
+      fs.mkdirSync(path.join(__dirname, 'uploads'), { recursive: true });
+    }
+    
+    fs.writeFileSync(uploadPath, buffer);
+    
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+    res.json({ url: fileUrl });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ message: 'Lỗi khi lưu ảnh lên máy chủ!' });
+  }
+});
 
 // Root API welcome/healthcheck
 app.get('/', (req, res) => {

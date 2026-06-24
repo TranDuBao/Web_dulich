@@ -13,7 +13,7 @@ export const MyBookings = () => {
   // Payment Modal States
   const [showPayModal, setShowPayModal] = useState(false);
   const [activeBooking, setActiveBooking] = useState(null);
-  const [payMethod, setPayMethod] = useState('VNPAY');
+  const [payMethod, setPayMethod] = useState('BANK_TRANSFER');
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paySuccessMsg, setPaySuccessMsg] = useState('');
 
@@ -329,9 +329,9 @@ export const MyBookings = () => {
                   <img 
                     src={
                       payMethod === 'BANK_TRANSFER'
-                        ? `https://qr.sepay.vn/img?acc=1234567890&bank=MBBank&amount=${activeBooking.total_price}&des=BK%20${activeBooking.id}`
+                        ? `https://qr.sepay.vn/img?acc=00005319841&bank=TPBank&amount=${activeBooking.total_price}&des=BK%20${activeBooking.id}`
                         : `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                            `2ef1b93f-c30f-4889-a292-1262dcfb8ef4|BANK_MB|1234567890|${activeBooking.total_price}|BK_${activeBooking.id}`
+                            `2ef1b93f-c30f-4889-a292-1262dcfb8ef4|BANK_TPB|00005319841|${activeBooking.total_price}|BK_${activeBooking.id}`
                           )}`
                     } 
                     alt="Payment QR Code" 
@@ -360,15 +360,15 @@ export const MyBookings = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', backgroundColor: 'var(--bg-main)', padding: '12px', borderRadius: '8px' }}>
                     <div>
                       <span style={{ color: 'var(--text-muted)' }}>{t.bankName}:</span>
-                      <strong style={{ float: 'right' }}>MB Bank (Ngân hàng Quân Đội)</strong>
+                      <strong style={{ float: 'right' }}>TPBank (Ngân hàng Tiên Phong)</strong>
                     </div>
                     <div>
                       <span style={{ color: 'var(--text-muted)' }}>{t.accountNum}:</span>
-                      <strong style={{ float: 'right' }}>1234567890</strong>
+                      <strong style={{ float: 'right' }}>00005319841</strong>
                     </div>
                     <div>
                       <span style={{ color: 'var(--text-muted)' }}>{t.accountName}:</span>
-                      <strong style={{ float: 'right' }}>CONG TY DUBAOTRAVEL CO.LTD</strong>
+                      <strong style={{ float: 'right' }}>TRAN DU BAO</strong>
                     </div>
                     <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '6px', marginTop: '4px' }}>
                       <span style={{ color: 'var(--text-muted)' }}>{t.amountLabel}:</span>
@@ -382,14 +382,23 @@ export const MyBookings = () => {
                     </div>
                   </div>
 
-                  <button 
-                    onClick={submitPayment} 
-                    disabled={paymentLoading}
-                    className="btn btn-accent" 
-                    style={{ width: '100%', marginTop: '16px', padding: '12px' }}
-                  >
-                    {paymentLoading ? t.waitPayMsg : t.confirmPayBtn}
-                  </button>
+                  {payMethod === 'BANK_TRANSFER' ? (
+                    <div style={{ textAlign: 'center', marginTop: '20px', padding: '12px', borderRadius: '8px', backgroundColor: 'rgba(49, 151, 149, 0.05)', color: 'var(--secondary-base)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                      <RefreshCw size={16} style={{ animation: 'spin 2s linear infinite' }} />
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>
+                        {lang === 'vi' ? 'Đang chờ thanh toán tự động qua VietQR...' : 'Waiting for automatic VietQR payment...'}
+                      </span>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={submitPayment} 
+                      disabled={paymentLoading}
+                      className="btn btn-accent" 
+                      style={{ width: '100%', marginTop: '16px', padding: '12px' }}
+                    >
+                      {paymentLoading ? t.waitPayMsg : t.confirmPayBtn}
+                    </button>
+                  )}
                 </div>
               </div>
             )}

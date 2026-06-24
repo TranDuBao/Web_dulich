@@ -129,7 +129,7 @@ const updateTour = async (req, res) => {
         duration_days || existing[0].duration_days,
         duration_nights !== undefined ? duration_nights : existing[0].duration_nights,
         price || existing[0].price,
-        image_url || existing[0].image_url,
+        image_url !== undefined ? (image_url.trim() === '' ? 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80' : image_url) : existing[0].image_url,
         start_date !== undefined ? start_date : existing[0].start_date,
         max_participants || existing[0].max_participants,
         highlights !== undefined ? highlights : existing[0].highlights,

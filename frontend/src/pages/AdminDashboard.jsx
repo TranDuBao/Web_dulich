@@ -88,6 +88,49 @@ export const AdminDashboard = () => {
     }
   }, [user, authLoading]);
 
+  const handleImageUpload = async (file) => {
+    if (!file) return null;
+    
+    if (file.size > 10 * 1024 * 1024) {
+      showAlert(
+        lang === 'vi' ? 'Dung lượng ảnh tối đa là 10MB!' : 'Max image size is 10MB!',
+        'warning',
+        lang === 'vi' ? 'Ảnh quá lớn' : 'File Too Large'
+      );
+      return null;
+    }
+    
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64Data = reader.result;
+          const res = await fetch('http://localhost:5001/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image: base64Data })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            resolve(data.url);
+          } else {
+            const data = await res.json();
+            showAlert(data.message || 'Lỗi khi tải ảnh lên', 'error');
+            resolve(null);
+          }
+        } catch (err) {
+          console.error('Upload error:', err);
+          showAlert(lang === 'vi' ? 'Lỗi kết nối máy chủ' : 'Server connection error', 'error');
+          resolve(null);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const loadDashboardData = async () => {
     setLoading(true);
     try {
@@ -704,7 +747,8 @@ export const AdminDashboard = () => {
 
   return (
     <div className="container animate-fade-in" style={{ marginTop: '40px', marginBottom: '60px' }}>
-      {/* Header section */}
+      <div className="no-print">
+        {/* Header section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '20px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1382,6 +1426,7 @@ export const AdminDashboard = () => {
           </div>
         );
       })()}
+      </div>
 
       {/* INVOICE DETAIL MODAL */}
       {selectedInvoice && (
@@ -1576,14 +1621,40 @@ export const AdminDashboard = () => {
 
               <div style={{ gridColumn: 'span 2' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '4px' }}>{t.formImage}</label>
-                <input 
-                  type="text" 
-                  name="image_url"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.image_url}
-                  onChange={handleFormChange}
-                  style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
-                />
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input 
+                    type="text" 
+                    name="image_url"
+                    placeholder="https://example.com/image.jpg"
+                    value={formData.image_url}
+                    onChange={handleFormChange}
+                    style={{ flex: 1, padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }}
+                  />
+                  <label className="btn btn-outline" style={{ padding: '8px 12px', fontSize: '0.8rem', cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Plus size={14} /> {lang === 'vi' ? 'Chọn file' : 'Choose file'}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setFormLoading(true);
+                          const url = await handleImageUpload(file);
+                          if (url) {
+                            setFormData(prev => ({ ...prev, image_url: url }));
+                          }
+                          setFormLoading(false);
+                        }
+                      }}
+                      style={{ display: 'none' }} 
+                    />
+                  </label>
+                </div>
+                {formData.image_url && (
+                  <div style={{ marginTop: '8px' }}>
+                    <img src={formData.image_url} alt="Tour Preview" style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                  </div>
+                )}
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>

@@ -82,8 +82,15 @@ const getHotels = async (req, res) => {
     // Apply dynamic pricing engine & currency conversion
     const processedHotels = hotels.map(hotel => {
       const dynamicPrice = calculateDynamicPrice(hotel.price_per_night, checkInDate, 1.0);
+      let parsedImages = [];
+      try {
+        parsedImages = hotel.images ? JSON.parse(hotel.images) : [];
+      } catch (e) {
+        parsedImages = [];
+      }
       return {
         ...hotel,
+        images: parsedImages,
         original_price: hotel.price_per_night,
         price_per_night: dynamicPrice,
         price_usd: Math.round((dynamicPrice / 25000) * 100) / 100
@@ -118,7 +125,14 @@ const getHotelById = async (req, res) => {
     const [rooms] = await db.query('SELECT * FROM rooms WHERE hotel_id = ?', [id]);
 
     const hotel = hotels[0];
+    let parsedImages = [];
+    try {
+      parsedImages = hotel.images ? JSON.parse(hotel.images) : [];
+    } catch (e) {
+      parsedImages = [];
+    }
     const dynamicPrice = calculateDynamicPrice(hotel.price_per_night, checkInDate, 1.0);
+    hotel.images = parsedImages;
     hotel.original_price = hotel.price_per_night;
     hotel.price_per_night = dynamicPrice;
     hotel.price_usd = Math.round((dynamicPrice / 25000) * 100) / 100;

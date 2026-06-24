@@ -14,7 +14,18 @@ const getPartnerHotels = async (req, res) => {
     }
 
     const [hotels] = await db.query(query, params);
-    res.json(hotels);
+    
+    // Parse images string to array
+    const parsedHotels = hotels.map(h => {
+      try {
+        h.images = h.images ? JSON.parse(h.images) : [];
+      } catch (e) {
+        h.images = [];
+      }
+      return h;
+    });
+
+    res.json(parsedHotels);
   } catch (error) {
     console.error('getPartnerHotels error:', error);
     res.status(500).json({ message: 'Lỗi hệ thống khi lấy danh sách khách sạn' });
@@ -23,7 +34,7 @@ const getPartnerHotels = async (req, res) => {
 
 const createPartnerHotel = async (req, res) => {
   try {
-    const { name, location, price_per_night, star_rating, image_url, description, lat, lng, owner_id } = req.body;
+    const { name, location, price_per_night, star_rating, image_url, images, description, lat, lng, owner_id } = req.body;
     if (!name || !location || !price_per_night) {
       return res.status(400).json({ message: 'Vui lòng điền tên khách sạn, địa chỉ và giá phòng cơ bản' });
     }
@@ -35,14 +46,15 @@ const createPartnerHotel = async (req, res) => {
     }
 
     const [result] = await db.query(
-      `INSERT INTO hotels (name, location, price_per_night, star_rating, image_url, description, lat, lng, owner_id) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO hotels (name, location, price_per_night, star_rating, image_url, images, description, lat, lng, owner_id) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         location,
         price_per_night,
         star_rating || 3,
         image_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+        images ? JSON.stringify(images) : '[]',
         description || '',
         lat || 10.0,
         lng || 100.0,
@@ -60,7 +72,7 @@ const createPartnerHotel = async (req, res) => {
 const updatePartnerHotel = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, location, price_per_night, star_rating, image_url, description, lat, lng, owner_id } = req.body;
+    const { name, location, price_per_night, star_rating, image_url, images, description, lat, lng, owner_id } = req.body;
 
     const [existing] = await db.query('SELECT * FROM hotels WHERE id = ?', [id]);
     if (existing.length === 0) {
@@ -80,7 +92,7 @@ const updatePartnerHotel = async (req, res) => {
     await db.query(
       `UPDATE hotels SET 
         name = ?, location = ?, price_per_night = ?, star_rating = ?, 
-        image_url = ?, description = ?, lat = ?, lng = ?, owner_id = ? 
+        image_url = ?, images = ?, description = ?, lat = ?, lng = ?, owner_id = ? 
        WHERE id = ?`,
       [
         name || existing[0].name,
@@ -88,6 +100,7 @@ const updatePartnerHotel = async (req, res) => {
         price_per_night !== undefined ? price_per_night : existing[0].price_per_night,
         star_rating !== undefined ? star_rating : existing[0].star_rating,
         image_url !== undefined ? image_url : existing[0].image_url,
+        images !== undefined ? JSON.stringify(images) : existing[0].images,
         description !== undefined ? description : existing[0].description,
         lat !== undefined ? lat : existing[0].lat,
         lng !== undefined ? lng : existing[0].lng,
